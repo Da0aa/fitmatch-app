@@ -1,197 +1,303 @@
 import { router } from "expo-router";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import {
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+  useWindowDimensions,
+} from "react-native";
 
-import styles from "../styles/homeStyles";
-
-// ========================================
-// TYPE / INTERFACE
-// ========================================
+import styles from "./styles";
 
 interface Outfit {
   id: number;
   name: string;
   category: string;
-  description: string;
+  description?: string;
 }
 
-// ========================================
-// ARRAY OF OBJECTS
-// ========================================
+interface Feature {
+  id: number;
+  title: string;
+  description: string;
+  route: string;
+}
 
 const outfits: Outfit[] = [
   {
     id: 1,
-    name: "Casual Everyday",
+    name: "Casual Blue",
     category: "Casual",
-    description: "Simple outfit for everyday activities",
   },
   {
     id: 2,
-    name: "Minimalist Look",
-    category: "Minimalist",
-    description: "Clean and simple style",
+    name: "Street Style",
+    category: "Street",
   },
   {
     id: 3,
-    name: "Street Style",
-    category: "Streetwear",
-    description: "Trendy outfit for a casual day",
-  },
-  {
-    id: 4,
-    name: "Elegant Look",
-    category: "Formal",
-    description: "A neat outfit for special occasions",
+    name: "Clean White",
+    category: "Minimalist",
   },
 ];
 
-// ========================================
-// CUSTOM FUNCTION
-// ========================================
+const trendingOutfits: Outfit[] = [
+  {
+    id: 4,
+    name: "Everyday Look",
+    category: "Casual",
+  },
+  {
+    id: 5,
+    name: "Simple Couple",
+    category: "Casual",
+  },
+  {
+    id: 6,
+    name: "Soft Neutral",
+    category: "Minimalist",
+  },
+];
+
+const features: Feature[] = [
+  {
+    id: 1,
+    title: "Wardrobe",
+    description: "Kelola koleksi pakaianmu.",
+    route: "/wardrobe",
+  },
+  {
+    id: 2,
+    title: "Match",
+    description: "Cari kombinasi outfit yang cocok.",
+    route: "/match",
+  },
+  {
+    id: 3,
+    title: "My Fits",
+    description: "Simpan outfit favoritmu.",
+    route: "/myfits",
+  },
+  {
+    id: 4,
+    title: "Planner",
+    description: "Rencanakan outfit harianmu.",
+    route: "/planner",
+  },
+  {
+    id: 5,
+    title: "Profile",
+    description: "Kelola profilmu.",
+    route: "/profile",
+  },
+];
 
 const renderOutfit = (outfit: Outfit) => {
   return (
-    <View key={outfit.id} style={styles.outfitCard}>
-      <View style={styles.outfitIcon}>
-        <Text style={styles.outfitIconText}>👕</Text>
+    <Pressable
+      key={outfit.id}
+      style={({ pressed }) => [
+        styles.outfitCard,
+        pressed && styles.cardPressed,
+      ]}
+    >
+      {/* Placeholder gambar */}
+      <View style={styles.outfitImage}>
+        <Text style={styles.imagePlaceholder}>Outfit</Text>
       </View>
 
-      <View style={styles.outfitInfo}>
-        <Text style={styles.outfitName}>{outfit.name}</Text>
+      <Text style={styles.outfitName}>{outfit.name}</Text>
 
-        <Text style={styles.outfitCategory}>{outfit.category}</Text>
-
-        <Text style={styles.outfitDescription}>{outfit.description}</Text>
-      </View>
-    </View>
+      <Text style={styles.outfitCategory}>{outfit.category}</Text>
+    </Pressable>
   );
 };
 
-// ========================================
-// HOME SCREEN
-// ========================================
-
-export default function Home() {
+const renderFeature = (feature: Feature) => {
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {/* ==================================
-          HEADER
-      ================================== */}
+    <Pressable
+      key={feature.id}
+      style={({ pressed }) => [
+        styles.featureCard,
+        pressed && styles.cardPressed,
+      ]}
+      onPress={() => router.push(feature.route as any)}
+    >
+      <View style={styles.featureIcon}>
+        <Text style={styles.featureIconText}>{feature.id}</Text>
+      </View>
+
+      <View style={styles.featureContent}>
+        <Text style={styles.featureTitle}>{feature.title}</Text>
+
+        <Text style={styles.featureDescription}>{feature.description}</Text>
+      </View>
+
+      <Text style={styles.featureArrow}>›</Text>
+    </Pressable>
+  );
+};
+
+export default function HomeScreen() {
+  const { width } = useWindowDimensions();
+
+  const isDesktop = width >= 768;
+
+  return (
+    <ScrollView
+      style={styles.container}
+      contentContainerStyle={[
+        styles.scrollContent,
+        isDesktop && styles.desktopContent,
+      ]}
+      showsVerticalScrollIndicator={false}
+    >
+      {/* ========================= */}
+      {/* HEADER */}
+      {/* ========================= */}
 
       <View style={styles.header}>
-        <Text style={styles.logo}>FITMATCH</Text>
+        <View style={styles.headerTop}>
+          <View>
+            {/* INLINE STYLING */}
+            <Text
+              style={[
+                styles.logo,
+                {
+                  letterSpacing: 1,
+                  textTransform: "uppercase",
+                },
+              ]}
+            >
+              FitMatch
+            </Text>
 
-        <Text style={styles.title}>Find Your Style</Text>
+            <Text style={styles.greeting}>Find your style</Text>
+          </View>
 
-        <Text style={styles.subtitle}>
-          Discover outfit ideas that match your personality and occasion.
-        </Text>
+          <Pressable style={styles.notificationButton}>
+            <Text style={styles.notificationIcon}>♡</Text>
+          </Pressable>
+        </View>
 
-        {/* INLINE STYLE */}
-        <Text
-          style={{
-            marginTop: 12,
-            color: "#5B6F82",
-            fontSize: 13,
-          }}
+        {/* SEARCH */}
+        <View style={styles.searchContainer}>
+          <Text style={styles.searchIcon}>⌕</Text>
+
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Cari outfit, gaya, atau inspirasi..."
+            placeholderTextColor="#8CA7B7"
+          />
+        </View>
+      </View>
+
+      {/* ========================= */}
+      {/* BANNER */}
+      {/* ========================= */}
+
+      <View style={styles.section}>
+        <Pressable style={styles.banner}>
+          <View style={styles.bannerTextContainer}>
+            <Text style={styles.bannerSmallText}>FITMATCH</Text>
+
+            <Text style={styles.bannerTitle}>Good Outfit</Text>
+
+            <Text style={styles.bannerTitle}>Good Mood ♡</Text>
+
+            <Text style={styles.bannerSubtitle}>Temukan gaya terbaikmu</Text>
+          </View>
+
+          {/* Placeholder gambar */}
+          <View style={styles.bannerImage}>
+            <Text style={styles.imagePlaceholder}>Outfit</Text>
+          </View>
+        </Pressable>
+
+        <View style={styles.bannerDots}>
+          <View style={styles.activeDot} />
+          <View style={styles.dot} />
+          <View style={styles.dot} />
+          <View style={styles.dot} />
+        </View>
+      </View>
+
+      {/* ========================= */}
+      {/* FOR YOU */}
+      {/* ========================= */}
+
+      <View style={styles.section}>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleContainer}>
+            <Text style={styles.sectionIcon}>♡</Text>
+
+            <Text style={styles.sectionTitle}>For You</Text>
+          </View>
+
+          <Pressable>
+            <Text style={styles.seeAll}>Lihat semua ›</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalCards}
         >
-          Your personal outfit companion ✨
-        </Text>
+          {outfits.map((outfit) => renderOutfit(outfit))}
+        </ScrollView>
       </View>
 
-      {/* ==================================
-          FOR YOU
-      ================================== */}
+      {/* ========================= */}
+      {/* TRENDING */}
+      {/* ========================= */}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>For You</Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleContainer}>
+            <Text style={styles.sectionIcon}>♧</Text>
 
-        <Text style={styles.sectionSubtitle}>
-          Outfit recommendations for you
-        </Text>
+            <Text style={styles.sectionTitle}>Trending</Text>
+          </View>
 
-        {/* LOOP / MAP */}
-        {outfits.map((outfit) => renderOutfit(outfit))}
+          <Pressable>
+            <Text style={styles.seeAll}>Lihat semua ›</Text>
+          </Pressable>
+        </View>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.horizontalCards}
+        >
+          {trendingOutfits.map((outfit) => renderOutfit(outfit))}
+        </ScrollView>
       </View>
 
-      {/* ==================================
-          TRENDING
-      ================================== */}
+      {/* ========================= */}
+      {/* EXPLORE FITMATCH */}
+      {/* ========================= */}
 
       <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Trending</Text>
+        <View style={styles.sectionHeader}>
+          <View style={styles.sectionTitleContainer}>
+            <Text style={styles.sectionIcon}>✦</Text>
 
-        <Text style={styles.sectionSubtitle}>Popular styles this week</Text>
+            <Text style={styles.sectionTitle}>Explore FITMATCH</Text>
+          </View>
+        </View>
 
-        <View style={styles.trendingContainer}>
-          <Pressable style={styles.trendingCard}>
-            <Text style={styles.trendingEmoji}>👟</Text>
-
-            <Text style={styles.trendingText}>Casual</Text>
-          </Pressable>
-
-          <Pressable style={styles.trendingCard}>
-            <Text style={styles.trendingEmoji}>🧥</Text>
-
-            <Text style={styles.trendingText}>Streetwear</Text>
-          </Pressable>
-
-          <Pressable style={styles.trendingCard}>
-            <Text style={styles.trendingEmoji}>👔</Text>
-
-            <Text style={styles.trendingText}>Formal</Text>
-          </Pressable>
+        <View style={styles.featureGrid}>
+          {features.map((feature) => renderFeature(feature))}
         </View>
       </View>
 
-      {/* ==================================
-          EXPLORE STYLE
-      ================================== */}
+      {/* ========================= */}
+      {/* BOTTOM */}
+      {/* ========================= */}
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Explore Style</Text>
-
-        <Text style={styles.sectionSubtitle}>Find a style that fits you</Text>
-
-        <View style={styles.styleContainer}>
-          <Pressable style={styles.styleChip}>
-            <Text style={styles.styleChipText}>Minimalist</Text>
-          </Pressable>
-
-          <Pressable style={styles.styleChip}>
-            <Text style={styles.styleChipText}>Korean</Text>
-          </Pressable>
-
-          <Pressable style={styles.styleChip}>
-            <Text style={styles.styleChipText}>Vintage</Text>
-          </Pressable>
-
-          <Pressable style={styles.styleChip}>
-            <Text style={styles.styleChipText}>Streetwear</Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {/* ==================================
-          MATCH BUTTON
-      ================================== */}
-
-      <Pressable
-        style={styles.matchButton}
-        onPress={() => router.push("/match")}
-      >
-        <Text style={styles.matchButtonText}>✨ FIND MY MATCH</Text>
-
-        <Text style={styles.matchButtonSubtext}>
-          Create an outfit based on your preferences
-        </Text>
-      </Pressable>
-
-      {/* ==================================
-          FOOTER
-      ================================== */}
-
-      <Text style={styles.footer}>FITMATCH • Your Style, Your Match</Text>
+      <View style={styles.bottomSpace} />
     </ScrollView>
   );
 }
