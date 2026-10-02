@@ -1,98 +1,197 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { router } from "expo-router";
+import { Pressable, ScrollView, Text, View } from "react-native";
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import styles from "../styles/homeStyles";
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
-  );
+// ========================================
+// TYPE / INTERFACE
+// ========================================
+
+interface Outfit {
+  id: number;
+  name: string;
+  category: string;
+  description: string;
 }
 
-export default function HomeScreen() {
+// ========================================
+// ARRAY OF OBJECTS
+// ========================================
+
+const outfits: Outfit[] = [
+  {
+    id: 1,
+    name: "Casual Everyday",
+    category: "Casual",
+    description: "Simple outfit for everyday activities",
+  },
+  {
+    id: 2,
+    name: "Minimalist Look",
+    category: "Minimalist",
+    description: "Clean and simple style",
+  },
+  {
+    id: 3,
+    name: "Street Style",
+    category: "Streetwear",
+    description: "Trendy outfit for a casual day",
+  },
+  {
+    id: 4,
+    name: "Elegant Look",
+    category: "Formal",
+    description: "A neat outfit for special occasions",
+  },
+];
+
+// ========================================
+// CUSTOM FUNCTION
+// ========================================
+
+const renderOutfit = (outfit: Outfit) => {
   return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
+    <View key={outfit.id} style={styles.outfitCard}>
+      <View style={styles.outfitIcon}>
+        <Text style={styles.outfitIconText}>👕</Text>
+      </View>
 
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
+      <View style={styles.outfitInfo}>
+        <Text style={styles.outfitName}>{outfit.name}</Text>
 
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
+        <Text style={styles.outfitCategory}>{outfit.category}</Text>
 
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
+        <Text style={styles.outfitDescription}>{outfit.description}</Text>
+      </View>
+    </View>
+  );
+};
+
+// ========================================
+// HOME SCREEN
+// ========================================
+
+export default function Home() {
+  return (
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* ==================================
+          HEADER
+      ================================== */}
+
+      <View style={styles.header}>
+        <Text style={styles.logo}>FITMATCH</Text>
+
+        <Text style={styles.title}>Find Your Style</Text>
+
+        <Text style={styles.subtitle}>
+          Discover outfit ideas that match your personality and occasion.
+        </Text>
+
+        {/* INLINE STYLE */}
+        <Text
+          style={{
+            marginTop: 12,
+            color: "#5B6F82",
+            fontSize: 13,
+          }}
+        >
+          Your personal outfit companion ✨
+        </Text>
+      </View>
+
+      {/* ==================================
+          FOR YOU
+      ================================== */}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>For You</Text>
+
+        <Text style={styles.sectionSubtitle}>
+          Outfit recommendations for you
+        </Text>
+
+        {/* LOOP / MAP */}
+        {outfits.map((outfit) => renderOutfit(outfit))}
+      </View>
+
+      {/* ==================================
+          TRENDING
+      ================================== */}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Trending</Text>
+
+        <Text style={styles.sectionSubtitle}>Popular styles this week</Text>
+
+        <View style={styles.trendingContainer}>
+          <Pressable style={styles.trendingCard}>
+            <Text style={styles.trendingEmoji}>👟</Text>
+
+            <Text style={styles.trendingText}>Casual</Text>
+          </Pressable>
+
+          <Pressable style={styles.trendingCard}>
+            <Text style={styles.trendingEmoji}>🧥</Text>
+
+            <Text style={styles.trendingText}>Streetwear</Text>
+          </Pressable>
+
+          <Pressable style={styles.trendingCard}>
+            <Text style={styles.trendingEmoji}>👔</Text>
+
+            <Text style={styles.trendingText}>Formal</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* ==================================
+          EXPLORE STYLE
+      ================================== */}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>Explore Style</Text>
+
+        <Text style={styles.sectionSubtitle}>Find a style that fits you</Text>
+
+        <View style={styles.styleContainer}>
+          <Pressable style={styles.styleChip}>
+            <Text style={styles.styleChipText}>Minimalist</Text>
+          </Pressable>
+
+          <Pressable style={styles.styleChip}>
+            <Text style={styles.styleChipText}>Korean</Text>
+          </Pressable>
+
+          <Pressable style={styles.styleChip}>
+            <Text style={styles.styleChipText}>Vintage</Text>
+          </Pressable>
+
+          <Pressable style={styles.styleChip}>
+            <Text style={styles.styleChipText}>Streetwear</Text>
+          </Pressable>
+        </View>
+      </View>
+
+      {/* ==================================
+          MATCH BUTTON
+      ================================== */}
+
+      <Pressable
+        style={styles.matchButton}
+        onPress={() => router.push("/match")}
+      >
+        <Text style={styles.matchButtonText}>✨ FIND MY MATCH</Text>
+
+        <Text style={styles.matchButtonSubtext}>
+          Create an outfit based on your preferences
+        </Text>
+      </Pressable>
+
+      {/* ==================================
+          FOOTER
+      ================================== */}
+
+      <Text style={styles.footer}>FITMATCH • Your Style, Your Match</Text>
+    </ScrollView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
-});
