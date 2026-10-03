@@ -1,5 +1,4 @@
-
-import React, { useState } from "react";
+import { useState } from "react";
 import {
   Alert,
   Modal,
@@ -12,104 +11,23 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-interface WardrobeItem {
-  id: string;
-  name: string;
-  category: string;
-  colorTag: string;
-  bgColor: string;
-}
-
-const CATEGORIES = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
-
-const INITIAL_WARDROBE_ITEMS: WardrobeItem[] = [
-  {
-    id: "1",
-    name: "Oversized Tee",
-    category: "Tops",
-    colorTag: "#2B2B2B",
-    bgColor: "#F0F4F8",
-  },
-  {
-    id: "2",
-    name: "Linen Shorts",
-    category: "Bottoms",
-    colorTag: "#8B5A2B",
-    bgColor: "#E3EDF7",
-  },
-  {
-    id: "3",
-    name: "Cropped Cardigan",
-    category: "Outer",
-    colorTag: "#AEC6CF",
-    bgColor: "#D9E8F5",
-  },
-  {
-    id: "4",
-    name: "Wide Jeans",
-    category: "Bottoms",
-    colorTag: "#4682B4",
-    bgColor: "#E1EBF5",
-  },
-  {
-    id: "5",
-    name: "Floral Summer Dress",
-    category: "Dress",
-    colorTag: "#E8A7A1",
-    bgColor: "#FCE4EC",
-  },
-  {
-    id: "6",
-    nameBerikut adalah kode lengkap yang sudah dirapikan dan dioptimalkan. 
-
-Beberapa perbaikan dan penyempurnaan yang telah diterapkan:
-1. **Pembersihan Duplikasi Code**: Menghapus deklarasi komponen berulang dari file awal.
-2. **Penggunaan `FlatList`**: Menggantikan rendering `ScrollView` + `map()` manual untuk grid produk agar performa jauh lebih efisien (*smooth scrolling* dan *memory-friendly*).
-3. **Penyempurnaan Modal Detail**: Menambahkan penanganan emoji kategori yang dinamis pada modal detail agar sesuai dengan semua kategori (termasuk *Dress* dan *Shoes*).
-4. **Keamanan Tipe Data (TypeScript)**: Membuat interface `WardrobeItem` secara jelas dan mengganti `any` pada *state* `selectedItem`.
-
-```tsx
-import React, { useState } from "react";
-import {
-  Alert,
-  FlatList,
-  Modal,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-
-// Interface Data Item
-interface WardrobeItem {
-  id: string;
-  name: string;
-  category: string;
-  colorTag: string;
-  bgColor: string;
-}
 
 export default function WardrobeScreen() {
-  // State Filter & Pencarian
-  const [selectedCategory, setSelectedCategory] = useState<string>("All");
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [searchQuery, setSearchQuery] = useState("");
 
-  // State Modal & Input Item Baru
-  const [isAddModalVisible, setIsAddModalVisible] = useState<boolean>(false);
-  const [newItemName, setNewItemName] = useState<string>("");
-  const [newItemCategory, setNewItemCategory] = useState<string>("Tops");
-  const [selectedItem, setSelectedItem] = useState<WardrobeItem null |>(null);
+  // State untuk Modal Tambah Baju
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Tops");
 
-  // Daftar Kategori
-  const categories: string[] = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
+  // State untuk Modal Detail Baju
+  const [selectedItem, setSelectedItem] = useState<any>(null);
 
-  // Initial Data Wardrobe
-  const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([
+  const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
+
+  // Data State Baju
+  const [wardrobeItems, setWardrobeItems] = useState([
     {
       id: "1",
       name: "Oversized Tee",
@@ -154,42 +72,24 @@ export default function WardrobeScreen() {
     },
   ]);
 
-  // Helper untuk mendapatkan Emoji berdasarkan Kategori
-  const getCategoryEmoji = (category: string): string => {
-    switch (category) {
-      case "Tops":
-        return "👕";
-      case "Bottoms":
-        return "👖";
-      case "Outer":
-        return "🧥";
-      case "Dress":
-        return "👗";
-      case "Shoes":
-        return "👟";
-      default:
-        return "👔";
-    }
-  };
-
-  // Logic Filtering
+  // Filter Kategori & Search Bar
   const filteredItems = wardrobeItems.filter((item) => {
     const matchesCategory =
-      selectedCategory === "All" || item.category === selectedCategory;
+      selectedCategory === "Semua" || item.category === selectedCategory;
     const matchesSearch = item.name
       .toLowerCase()
       .includes(searchQuery.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
-  // Handler Tambah Item Baru
+  // Fungsi Tambah Baju
   const handleAddItem = () => {
     if (!newItemName.trim()) {
-      Alert.alert("Warning", "Please enter an item name!");
+      Alert.alert("Peringatan", "Masukkan nama baju terlebih dahulu!");
       return;
     }
 
-    const newItem: WardrobeItem = {
+    const newItem = {
       id: Date.now().toString(),
       name: newItemName,
       category: newItemCategory,
@@ -200,62 +100,61 @@ export default function WardrobeScreen() {
     setWardrobeItems([newItem, ...wardrobeItems]);
     setNewItemName("");
     setIsAddModalVisible(false);
-    Alert.alert("Success", "New item added to your wardrobe!");
+    Alert.alert("Berhasil", "Baju baru telah ditambahkan ke lemari!");
   };
 
-  // Handler Hapus Item
+  // Fungsi Hapus Baju
   const handleDeleteItem = (id: string) => {
     setWardrobeItems(wardrobeItems.filter((item) => item.id !== id));
     setSelectedItem(null);
-    Alert.alert("Deleted", "Item successfully removed from wardrobe.");
+    Alert.alert("Dihapus", "Item berhasil dihapus dari lemari.");
   };
 
-  // Render Item Kartu
-  const renderCardItem = ({ item }: { item: WardrobeItem }) => (
-    <TouchableOpacity onPress="{()" style="{styles.card}"> setSelectedItem(item)}
-      activeOpacity={0.7}
-    >
-      <View backgroundColor: item.bgColor style="{[styles.cardImage," { }]}>
-        <View backgroundColor: item.colorTag style="{[styles.colorBadge," { }]}/>
-        <Text 42 fontSize: style="{{" }}>{getCategoryEmoji(item.category)}</Text>
-      </View>
-      <View style="{styles.cardBody}">
-        <Text numberOfLines="{1}" style="{styles.cardTitle}">
-          {item.name}
-        </Text>
-        <Text style="{styles.cardSub}">{item.category}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-
   return (
-    <SafeAreaView style="{styles.container}">
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content"/>
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* 1. HEADER */}
-      <View style="{styles.header}">
-        <Text style="{styles.headerTitle}">WARDROBE</Text>
-        <TouchableOpacity onPress="{()" style="{styles.editBtn}"> Alert.alert("Info", "Management mode activated")}
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>WARDROBE</Text>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => Alert.alert("Info", "Mode kelola diaktifkan")}
         >
-          <Text style="{styles.editText}">Manage</Text>
+          <Text style={styles.editText}>Manage</Text>
         </TouchableOpacity>
       </View>
 
       {/* 2. SEARCH BAR */}
-      <View style="{styles.searchContainer}">
-        <TextInput onChangeText="{setSearchQuery}" placeholder="🔍 Search items, colors, or types..." placeholderTextColor="#A0B2C6" style="{styles.searchInput}" value="{searchQuery}"/>
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="🔍 Search items, colors, or types..."
+          placeholderTextColor="#A0B2C6"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
       </View>
 
       {/* 3. CATEGORY CHIPS */}
-      <View 10 45, marginBottom: maxHeight: style="{{" }}>
-        <ScrollView contentContainerStyle="{styles.categoryContainer}" horizontal showsHorizontalScrollIndicator="{false}">
-          {categories.map((cat, index) => {
-            const isActive = selectedCategory === cat;
+      <View style={{ maxHeight: 45, marginBottom: 10 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryContainer}
+        >
+          {categories.map((item, index) => {
+            const isActive = selectedCategory === item;
             return (
-              <TouchableOpacity && isActive key="{index}" onPress="{()" style="{[styles.chip," styles.chipActive]}> setSelectedCategory(cat)}
+              <TouchableOpacity
+                key={index}
+                style={[styles.chip, isActive && styles.chipActive]}
+                onPress={() => setSelectedCategory(item)}
               >
-                <Text && isActive style="{[styles.chipText," styles.chipTextActive]}>
-                  {cat}
+                <Text
+                  style={[styles.chipText, isActive && styles.chipTextActive]}
+                >
+                  {item}
                 </Text>
               </TouchableOpacity>
             );
@@ -264,312 +163,337 @@ export default function WardrobeScreen() {
       </View>
 
       {/* 4. INFO BAR */}
-      <View style="{styles.infoBar}">
-        <Text style="{styles.infoText}">
-          {filteredItems.length} items displayed
+      <View style={styles.infoBar}>
+        <Text style={styles.infoText}>
+          {filteredItems.length} Items ditampilkan
         </Text>
-
-import { router } from "expo-router";
-import {
-  Pressable,
-  ScrollView,
-  Text,
-  TextInput,
-  View,
-  useWindowDimensions,
-} from "react-native";
-
-import styles from "./styles";
-
-interface Outfit {
-  id: number;
-  name: string;
-  category: string;
-  description?: string;
-}
-
-interface Feature {
-  id: number;
-  title: string;
-  description: string;
-  route: string;
-}
-
-const outfits: Outfit[] = [
-  {
-    id: 1,
-    name: "Casual Blue",
-    category: "Casual",
-  },
-  {
-    id: 2,
-    name: "Street Style",
-    category: "Street",
-  },
-  {
-    id: 3,
-    name: "Clean White",
-    category: "Minimalist",
-  },
-];
-
-const trendingOutfits: Outfit[] = [
-  {
-    id: 4,
-    name: "Everyday Look",
-    category: "Casual",
-  },
-  {
-    id: 5,
-    name: "Simple Couple",
-    category: "Casual",
-  },
-  {
-    id: 6,
-    name: "Soft Neutral",
-    category: "Minimalist",
-  },
-];
-
-const features: Feature[] = [
-  {
-    id: 1,
-    title: "Wardrobe",
-    description: "Kelola koleksi pakaianmu.",
-    route: "/wardrobe",
-  },
-  {
-    id: 2,
-    title: "Match",
-    description: "Cari kombinasi outfit yang cocok.",
-    route: "/match",
-  },
-  {
-    id: 3,
-    title: "My Fits",
-    description: "Simpan outfit favoritmu.",
-    route: "/myfits",
-  },
-  {
-    id: 4,
-    title: "Planner",
-    description: "Rencanakan outfit harianmu.",
-    route: "/planner",
-  },
-  {
-    id: 5,
-    title: "Profile",
-    description: "Kelola profilmu.",
-    route: "/profile",
-  },
-];
-
-const renderOutfit = (outfit: Outfit) => {
-  return (
-    <Pressable
-      key={outfit.id}
-      style={({ pressed }) => [
-        styles.outfitCard,
-        pressed && styles.cardPressed,
-      ]}
-    >
-      {/* Placeholder gambar */}
-      <View style={styles.outfitImage}>
-        <Text style={styles.imagePlaceholder}>Outfit</Text>
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert("Filter", "Pilih filter berdasarkan warna atau event")
+          }
+        >
+          <Text style={styles.filterText}>🏷️️ Filter ▾</Text>
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.outfitName}>{outfit.name}</Text>
-
-      <Text style={styles.outfitCategory}>{outfit.category}</Text>
-    </Pressable>
-  );
-};
-
-const renderFeature = (feature: Feature) => {
-  return (
-    <Pressable
-      key={feature.id}
-      style={({ pressed }) => [
-        styles.featureCard,
-        pressed && styles.cardPressed,
-      ]}
-      onPress={() => router.push(feature.route as any)}
-    >
-      <View style={styles.featureIcon}>
-        <Text style={styles.featureIconText}>{feature.id}</Text>
-      </View>
-
-      <View style={styles.featureContent}>
-        <Text style={styles.featureTitle}>{feature.title}</Text>
-
-        <Text style={styles.featureDescription}>{feature.description}</Text>
-      </View>
-
-      <Text style={styles.featureArrow}>›</Text>
-    </Pressable>
-  );
-};
-
-export default function HomeScreen() {
-  const { width } = useWindowDimensions();
-
-  const isDesktop = width >= 768;
-
-  return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.scrollContent,
-        isDesktop && styles.desktopContent,
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* ========================= */}
-      {/* HEADER */}
-      {/* ========================= */}
-
-      <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            {/* INLINE STYLING */}
-            <Text
-              style={[
-                styles.logo,
-                {
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
-                },
-              ]}
+      {/* 5. GRID KATALOG BAJU */}
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+        <View style={styles.gridContainer}>
+          {filteredItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.card}
+              onPress={() => setSelectedItem(item)}
             >
-              FitMatch
+              <View
+                style={[styles.cardImage, { backgroundColor: item.bgColor }]}
+              >
+                <View
+                  style={[
+                    styles.colorBadge,
+                    { backgroundColor: item.colorTag },
+                  ]}
+                />
+                <Text style={{ fontSize: 36 }}>
+                  {item.category === "Tops"
+                    ? "👕"
+                    : item.category === "Bottoms"
+                      ? "👖"
+                      : item.category === "Outer"
+                        ? "🧥"
+                        : item.category === "Dress"
+                          ? "👗"
+                          : "👟"}
+                </Text>
+              </View>
+              <View style={styles.cardBody}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardSub}>{item.category}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* 6. FAB TAMBAH BAJU ("+") */}
+      <TouchableOpacity
+        style={styles.fabButton}
+        onPress={() => setIsAddModalVisible(true)}
+      >
+        <Text style={styles.fabIcon}>➕</Text>
+      </TouchableOpacity>
+
+      {/* MODAL DETAIL BAJU */}
+      <Modal visible={selectedItem !== null} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedItem && (
+              <>
+                <Text style={styles.modalTitle}>{selectedItem.name}</Text>
+                <View
+                  style={[
+                    styles.modalImage,
+                    { backgroundColor: selectedItem.bgColor },
+                  ]}
+                >
+                  <Text style={{ fontSize: 60 }}>
+                    {selectedItem.category === "Tops"
+                      ? "👕"
+                      : selectedItem.category === "Bottoms"
+                        ? "👖"
+                        : "🧥"}
+                  </Text>
+                </View>
+                <Text style={styles.modalSub}>
+                  Kategori: {selectedItem.category}
+                </Text>
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.deleteBtn}
+                    onPress={() => handleDeleteItem(selectedItem.id)}
+                  >
+                    <Text style={styles.deleteText}>🗑️ Hapus Baju</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeBtn}
+                    onPress={() => setSelectedItem(null)}
+                  >
+                    <Text style={styles.closeText}>Tutup</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL TAMBAH BAJU BARU */}
+      <Modal visible={isAddModalVisible} animationType="fade" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Enter item name 👕</Text>
+
+            <TextInput
+              style={styles.inputForm}
+              placeholder="Masukkan nama baju..."
+              placeholderTextColor="#A0B2C6"
+              value={newItemName}
+              onChangeText={setNewItemName}
+            />
+
+            <Text style={{ marginTop: 10, fontSize: 12, color: "#5C738B" }}>
+              Select Category:
             </Text>
+            <View style={styles.categoryPicker}>
+              {["Tops", "Bottoms", "Outer", "Shoes"].map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.miniChip,
+                    newItemCategory === cat && styles.chipActive,
+                  ]}
+                  onPress={() => setNewItemCategory(cat)}
+                >
+                  <Text
+                    style={[
+                      styles.miniChipText,
+                      newItemCategory === cat && styles.chipTextActive,
+                    ]}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-            <Text style={styles.greeting}>Find your style</Text>
-          </View>
-
-          <Pressable style={styles.notificationButton}>
-            <Text style={styles.notificationIcon}>♡</Text>
-          </Pressable>
-        </View>
-
-        {/* SEARCH */}
-        <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>⌕</Text>
-
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Cari outfit, gaya, atau inspirasi..."
-            placeholderTextColor="#8CA7B7"
-          />
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* BANNER */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <Pressable style={styles.banner}>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerSmallText}>FITMATCH</Text>
-
-            <Text style={styles.bannerTitle}>Good Outfit</Text>
-
-            <Text style={styles.bannerTitle}>Good Mood ♡</Text>
-
-            <Text style={styles.bannerSubtitle}>Temukan gaya terbaikmu</Text>
-          </View>
-
-          {/* Placeholder gambar */}
-          <View style={styles.bannerImage}>
-            <Text style={styles.imagePlaceholder}>Outfit</Text>
-          </View>
-        </Pressable>
-
-        <View style={styles.bannerDots}>
-          <View style={styles.activeDot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* FOR YOU */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>♡</Text>
-
-            <Text style={styles.sectionTitle}>For You</Text>
-          </View>
-
-          <Pressable>
-            <Text style={styles.seeAll}>Lihat semua ›</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalCards}
-        >
-          {outfits.map((outfit) => renderOutfit(outfit))}
-        </ScrollView>
-      </View>
-
-      {/* ========================= */}
-      {/* TRENDING */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>♧</Text>
-
-            <Text style={styles.sectionTitle}>Trending</Text>
-          </View>
-
-          <Pressable>
-            <Text style={styles.seeAll}>Lihat semua ›</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalCards}
-        >
-          {trendingOutfits.map((outfit) => renderOutfit(outfit))}
-        </ScrollView>
-      </View>
-
-      {/* ========================= */}
-      {/* EXPLORE FITMATCH */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>✦</Text>
-
-            <Text style={styles.sectionTitle}>Explore FITMATCH</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleAddItem}>
+                <Text style={styles.saveText}>Save to Wardrobe</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => setIsAddModalVisible(false)}
+              >
+                <Text style={styles.closeText}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-
-        <View style={styles.featureGrid}>
-          {features.map((feature) => renderFeature(feature))}
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* BOTTOM */}
-      {/* ========================= */}
-
-      <View style={styles.bottomSpace} />
-    </ScrollView>
+      </Modal>
+    </SafeAreaView>
   );
 }
 
+// PALETTE WARNA: BIRU PASTEL & PUTIH
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1E293B",
+    letterSpacing: 1,
+  },
+  editBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#F0F5FA",
+    borderRadius: 12,
+  },
+  editText: { fontSize: 12, color: "#4A729D", fontWeight: "600" },
+  searchContainer: { paddingHorizontal: 20, marginBottom: 12 },
+  searchInput: {
+    backgroundColor: "#F0F5FA",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+    fontSize: 13,
+    color: "#1E293B",
+  },
+  categoryContainer: { paddingLeft: 20, paddingRight: 10 },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#F0F5FA",
+    marginRight: 8,
+    height: 35,
+    justifyContent: "center",
+  },
+  chipActive: { backgroundColor: "#7FA8D0" }, // Pastel Blue Utama
+  chipText: { fontSize: 12, color: "#4A729D" },
+  chipTextActive: { color: "#FFFFFF", fontWeight: "bold" },
+  infoBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  infoText: { fontSize: 12, color: "#64748B" },
+  filterText: { fontSize: 12, color: "#1E293B", fontWeight: "600" },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    paddingBottom: 80,
+  },
+  card: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    overflow: "hidden",
+  },
+  cardImage: {
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  colorBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+  },
+  cardBody: { padding: 10 },
+  cardTitle: { fontSize: 13, fontWeight: "bold", color: "#1E293B" },
+  cardSub: { fontSize: 11, color: "#64748B", marginTop: 2 },
+  fabButton: {
+    position: "absolute",
+    bottom: 25,
+    right: 20,
+    width: 55,
+    height: 55,
+    borderRadius: 28,
+    backgroundColor: "#7FA8D0",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#7FA8D0",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+  },
+  fabIcon: { fontSize: 22, color: "#FFFFFF" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E293B",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  modalImage: {
+    height: 140,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  modalSub: { textAlign: "center", color: "#64748B", marginBottom: 15 },
+  modalActions: { gap: 10 },
+  saveBtn: {
+    backgroundColor: "#7FA8D0",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  saveText: { color: "#FFFFFF", fontWeight: "bold" },
+  deleteBtn: {
+    backgroundColor: "#FEF2F2",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  deleteText: { color: "#EF4444", fontWeight: "bold" },
+  closeBtn: { padding: 10, alignItems: "center" },
+  closeText: { color: "#64748B" },
+  inputForm: {
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 10,
+    color: "#1E293B",
+  },
+  categoryPicker: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginVertical: 10,
+  },
+  miniChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    backgroundColor: "#F0F5FA",
+  },
+  miniChipText: { fontSize: 11, color: "#4A729D" },
+});
