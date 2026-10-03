@@ -12,8 +12,16 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+interface WardrobeItem {
+  id: string;
+  name: string;
+  category: string;
+  colorTag: string;
+  bgColor: string;
+}
+
 export default function WardrobeScreen() {
-  const [selectedCategory, setSelectedCategory] = useState("Semua");
+  const [selectedCategory, setSelectedCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
   // State untuk Modal Tambah Baju
@@ -22,12 +30,12 @@ export default function WardrobeScreen() {
   const [newItemCategory, setNewItemCategory] = useState("Tops");
 
   // State untuk Modal Detail Baju
-  const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
   const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
 
   // Data State Baju
-  const [wardrobeItems, setWardrobeItems] = useState([
+  const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([
     {
       id: "1",
       name: "Oversized Tee",
@@ -74,11 +82,17 @@ export default function WardrobeScreen() {
 
   // Filter Kategori & Search Bar
   const filteredItems = wardrobeItems.filter((item) => {
+    const cleanSearch = searchQuery.trim().toLowerCase();
+    const cleanCategory = selectedCategory.trim().toLowerCase();
+
     const matchesCategory =
-      selectedCategory === "Semua" || item.category === selectedCategory;
-    const matchesSearch = item.name
-      .toLowerCase()
-      .includes(searchQuery.toLowerCase());
+      cleanCategory === "all" ||
+      cleanCategory === "semua" ||
+      item.category.toLowerCase() === cleanCategory;
+
+    const matchesSearch =
+      cleanSearch === "" || item.name.toLowerCase().includes(cleanSearch);
+
     return matchesCategory && matchesSearch;
   });
 
@@ -89,9 +103,9 @@ export default function WardrobeScreen() {
       return;
     }
 
-    const newItem = {
+    const newItem: WardrobeItem = {
       id: Date.now().toString(),
-      name: newItemName,
+      name: newItemName.trim(),
       category: newItemCategory,
       colorTag: "#AEC6CF",
       bgColor: "#E3EDF7",
@@ -144,7 +158,8 @@ export default function WardrobeScreen() {
           contentContainerStyle={styles.categoryContainer}
         >
           {categories.map((item, index) => {
-            const isActive = selectedCategory === item;
+            const isActive =
+              selectedCategory.toLowerCase() === item.toLowerCase();
             return (
               <TouchableOpacity
                 key={index}
@@ -172,7 +187,7 @@ export default function WardrobeScreen() {
             Alert.alert("Filter", "Pilih filter berdasarkan warna atau event")
           }
         >
-          <Text style={styles.filterText}>🏷️️ Filter ▾</Text>
+          <Text style={styles.filterText}>🏷 Filter ▾</Text>
         </TouchableOpacity>
       </View>
 
@@ -241,7 +256,11 @@ export default function WardrobeScreen() {
                       ? "👕"
                       : selectedItem.category === "Bottoms"
                         ? "👖"
-                        : "🧥"}
+                        : selectedItem.category === "Outer"
+                          ? "🧥"
+                          : selectedItem.category === "Dress"
+                            ? "👗"
+                            : "👟"}
                   </Text>
                 </View>
                 <Text style={styles.modalSub}>
@@ -272,7 +291,7 @@ export default function WardrobeScreen() {
       <Modal visible={isAddModalVisible} animationType="fade" transparent>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Enter item name 👕</Text>
+            <Text style={styles.modalTitle}>Tambah Item Baru 👕</Text>
 
             <TextInput
               style={styles.inputForm}
@@ -283,10 +302,10 @@ export default function WardrobeScreen() {
             />
 
             <Text style={{ marginTop: 10, fontSize: 12, color: "#5C738B" }}>
-              Select Category:
+              Pilih Kategori:
             </Text>
             <View style={styles.categoryPicker}>
-              {["Tops", "Bottoms", "Outer", "Shoes"].map((cat) => (
+              {["Tops", "Bottoms", "Outer", "Dress", "Shoes"].map((cat) => (
                 <TouchableOpacity
                   key={cat}
                   style={[
@@ -309,13 +328,13 @@ export default function WardrobeScreen() {
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.saveBtn} onPress={handleAddItem}>
-                <Text style={styles.saveText}>Save to Wardrobe</Text>
+                <Text style={styles.saveText}>Simpan Ke Wardrobe</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.closeBtn}
                 onPress={() => setIsAddModalVisible(false)}
               >
-                <Text style={styles.closeText}>Cancel</Text>
+                <Text style={styles.closeText}>Batal</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -368,7 +387,7 @@ const styles = StyleSheet.create({
     height: 35,
     justifyContent: "center",
   },
-  chipActive: { backgroundColor: "#7FA8D0" }, // Pastel Blue Utama
+  chipActive: { backgroundColor: "#7FA8D0" },
   chipText: { fontSize: 12, color: "#4A729D" },
   chipTextActive: { color: "#FFFFFF", fontWeight: "bold" },
   infoBar: {
