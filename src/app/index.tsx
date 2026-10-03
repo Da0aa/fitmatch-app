@@ -1,303 +1,518 @@
-import { router } from "expo-router";
+import { useState } from "react";
 import {
-  Pressable,
+  Alert,
+  Modal,
   ScrollView,
+  StatusBar,
+  StyleSheet,
   Text,
   TextInput,
+  TouchableOpacity,
   View,
-  useWindowDimensions,
 } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
-import styles from "./styles";
-
-interface Outfit {
-  id: number;
+interface WardrobeItem {
+  id: string;
   name: string;
   category: string;
-  description?: string;
+  colorTag: string;
+  bgColor: string;
 }
 
-interface Feature {
-  id: number;
-  title: string;
-  description: string;
-  route: string;
-}
+export default function WardrobeScreen() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
 
-const outfits: Outfit[] = [
-  {
-    id: 1,
-    name: "Casual Blue",
-    category: "Casual",
-  },
-  {
-    id: 2,
-    name: "Street Style",
-    category: "Street",
-  },
-  {
-    id: 3,
-    name: "Clean White",
-    category: "Minimalist",
-  },
-];
+  // State untuk Modal Tambah Baju
+  const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+  const [newItemName, setNewItemName] = useState("");
+  const [newItemCategory, setNewItemCategory] = useState("Tops");
 
-const trendingOutfits: Outfit[] = [
-  {
-    id: 4,
-    name: "Everyday Look",
-    category: "Casual",
-  },
-  {
-    id: 5,
-    name: "Simple Couple",
-    category: "Casual",
-  },
-  {
-    id: 6,
-    name: "Soft Neutral",
-    category: "Minimalist",
-  },
-];
+  // State untuk Modal Detail Baju
+  const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
-const features: Feature[] = [
-  {
-    id: 1,
-    title: "Wardrobe",
-    description: "Kelola koleksi pakaianmu.",
-    route: "/wardrobe",
-  },
-  {
-    id: 2,
-    title: "Match",
-    description: "Cari kombinasi outfit yang cocok.",
-    route: "/match",
-  },
-  {
-    id: 3,
-    title: "My Fits",
-    description: "Simpan outfit favoritmu.",
-    route: "/myfits",
-  },
-  {
-    id: 4,
-    title: "Planner",
-    description: "Rencanakan outfit harianmu.",
-    route: "/planner",
-  },
-  {
-    id: 5,
-    title: "Profile",
-    description: "Kelola profilmu.",
-    route: "/profile",
-  },
-];
+  const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
 
-const renderOutfit = (outfit: Outfit) => {
-  return (
-    <Pressable
-      key={outfit.id}
-      style={({ pressed }) => [
-        styles.outfitCard,
-        pressed && styles.cardPressed,
-      ]}
-    >
-      {/* Placeholder gambar */}
-      <View style={styles.outfitImage}>
-        <Text style={styles.imagePlaceholder}>Outfit</Text>
-      </View>
+  // Data State Baju
+  const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([
+    {
+      id: "1",
+      name: "Oversized Tee",
+      category: "Tops",
+      colorTag: "#2B2B2B",
+      bgColor: "#F0F4F8",
+    },
+    {
+      id: "2",
+      name: "Linen Shorts",
+      category: "Bottoms",
+      colorTag: "#8B5A2B",
+      bgColor: "#E3EDF7",
+    },
+    {
+      id: "3",
+      name: "Cropped Cardigan",
+      category: "Outer",
+      colorTag: "#AEC6CF",
+      bgColor: "#D9E8F5",
+    },
+    {
+      id: "4",
+      name: "Wide Jeans",
+      category: "Bottoms",
+      colorTag: "#4682B4",
+      bgColor: "#E1EBF5",
+    },
+    {
+      id: "5",
+      name: "Floral Summer Dress",
+      category: "Dress",
+      colorTag: "#E8A7A1",
+      bgColor: "#FCE4EC",
+    },
+    {
+      id: "6",
+      name: "White Sneakers",
+      category: "Shoes",
+      colorTag: "#FFFFFF",
+      bgColor: "#F5F7FA",
+    },
+  ]);
 
-      <Text style={styles.outfitName}>{outfit.name}</Text>
+  // Filter Kategori & Search Bar
+  const filteredItems = wardrobeItems.filter((item) => {
+    const cleanSearch = searchQuery.trim().toLowerCase();
+    const cleanCategory = selectedCategory.trim().toLowerCase();
 
-      <Text style={styles.outfitCategory}>{outfit.category}</Text>
-    </Pressable>
-  );
-};
+    const matchesCategory =
+      cleanCategory === "all" ||
+      cleanCategory === "semua" ||
+      item.category.toLowerCase() === cleanCategory;
 
-const renderFeature = (feature: Feature) => {
-  return (
-    <Pressable
-      key={feature.id}
-      style={({ pressed }) => [
-        styles.featureCard,
-        pressed && styles.cardPressed,
-      ]}
-      onPress={() => router.push(feature.route as any)}
-    >
-      <View style={styles.featureIcon}>
-        <Text style={styles.featureIconText}>{feature.id}</Text>
-      </View>
+    const matchesSearch =
+      cleanSearch === "" || item.name.toLowerCase().includes(cleanSearch);
 
-      <View style={styles.featureContent}>
-        <Text style={styles.featureTitle}>{feature.title}</Text>
+    return matchesCategory && matchesSearch;
+  });
 
-        <Text style={styles.featureDescription}>{feature.description}</Text>
-      </View>
+  // Fungsi Tambah Baju
+  const handleAddItem = () => {
+    if (!newItemName.trim()) {
+      Alert.alert("Peringatan", "Masukkan nama baju terlebih dahulu!");
+      return;
+    }
 
-      <Text style={styles.featureArrow}>›</Text>
-    </Pressable>
-  );
-};
+    const newItem: WardrobeItem = {
+      id: Date.now().toString(),
+      name: newItemName.trim(),
+      category: newItemCategory,
+      colorTag: "#AEC6CF",
+      bgColor: "#E3EDF7",
+    };
 
-export default function HomeScreen() {
-  const { width } = useWindowDimensions();
+    setWardrobeItems([newItem, ...wardrobeItems]);
+    setNewItemName("");
+    setIsAddModalVisible(false);
+    Alert.alert("Berhasil", "Baju baru telah ditambahkan ke lemari!");
+  };
 
-  const isDesktop = width >= 768;
+  // Fungsi Hapus Baju
+  const handleDeleteItem = (id: string) => {
+    setWardrobeItems(wardrobeItems.filter((item) => item.id !== id));
+    setSelectedItem(null);
+    Alert.alert("Dihapus", "Item berhasil dihapus dari lemari.");
+  };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={[
-        styles.scrollContent,
-        isDesktop && styles.desktopContent,
-      ]}
-      showsVerticalScrollIndicator={false}
-    >
-      {/* ========================= */}
-      {/* HEADER */}
-      {/* ========================= */}
+    <SafeAreaView style={styles.container}>
+      <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
+      {/* 1. HEADER */}
       <View style={styles.header}>
-        <View style={styles.headerTop}>
-          <View>
-            {/* INLINE STYLING */}
-            <Text
-              style={[
-                styles.logo,
-                {
-                  letterSpacing: 1,
-                  textTransform: "uppercase",
-                },
-              ]}
+        <Text style={styles.headerTitle}>WARDROBE</Text>
+        <TouchableOpacity
+          style={styles.editBtn}
+          onPress={() => Alert.alert("Info", "Mode kelola diaktifkan")}
+        >
+          <Text style={styles.editText}>Manage</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 2. SEARCH BAR */}
+      <View style={styles.searchContainer}>
+        <TextInput
+          style={styles.searchInput}
+          placeholder="🔍 Search items, colors, or types..."
+          placeholderTextColor="#A0B2C6"
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+        />
+      </View>
+
+      {/* 3. CATEGORY CHIPS */}
+      <View style={{ maxHeight: 45, marginBottom: 10 }}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.categoryContainer}
+        >
+          {categories.map((item, index) => {
+            const isActive =
+              selectedCategory.toLowerCase() === item.toLowerCase();
+            return (
+              <TouchableOpacity
+                key={index}
+                style={[styles.chip, isActive && styles.chipActive]}
+                onPress={() => setSelectedCategory(item)}
+              >
+                <Text
+                  style={[styles.chipText, isActive && styles.chipTextActive]}
+                >
+                  {item}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* 4. INFO BAR */}
+      <View style={styles.infoBar}>
+        <Text style={styles.infoText}>
+          {filteredItems.length} Items ditampilkan
+        </Text>
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert("Filter", "Pilih filter berdasarkan warna atau event")
+          }
+        >
+          <Text style={styles.filterText}>🏷 Filter ▾</Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* 5. GRID KATALOG BAJU */}
+      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+        <View style={styles.gridContainer}>
+          {filteredItems.map((item) => (
+            <TouchableOpacity
+              key={item.id}
+              style={styles.card}
+              onPress={() => setSelectedItem(item)}
             >
-              FitMatch
+              <View
+                style={[styles.cardImage, { backgroundColor: item.bgColor }]}
+              >
+                <View
+                  style={[
+                    styles.colorBadge,
+                    { backgroundColor: item.colorTag },
+                  ]}
+                />
+                <Text style={{ fontSize: 36 }}>
+                  {item.category === "Tops"
+                    ? "👕"
+                    : item.category === "Bottoms"
+                      ? "👖"
+                      : item.category === "Outer"
+                        ? "🧥"
+                        : item.category === "Dress"
+                          ? "👗"
+                          : "👟"}
+                </Text>
+              </View>
+              <View style={styles.cardBody}>
+                <Text style={styles.cardTitle}>{item.name}</Text>
+                <Text style={styles.cardSub}>{item.category}</Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+
+      {/* 6. FAB TAMBAH BAJU ("+") */}
+      <TouchableOpacity
+        style={styles.fabButton}
+        onPress={() => setIsAddModalVisible(true)}
+      >
+        <Text style={styles.fabIcon}>➕</Text>
+      </TouchableOpacity>
+
+      {/* MODAL DETAIL BAJU */}
+      <Modal visible={selectedItem !== null} animationType="slide" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            {selectedItem && (
+              <>
+                <Text style={styles.modalTitle}>{selectedItem.name}</Text>
+                <View
+                  style={[
+                    styles.modalImage,
+                    { backgroundColor: selectedItem.bgColor },
+                  ]}
+                >
+                  <Text style={{ fontSize: 60 }}>
+                    {selectedItem.category === "Tops"
+                      ? "👕"
+                      : selectedItem.category === "Bottoms"
+                        ? "👖"
+                        : selectedItem.category === "Outer"
+                          ? "🧥"
+                          : selectedItem.category === "Dress"
+                            ? "👗"
+                            : "👟"}
+                  </Text>
+                </View>
+                <Text style={styles.modalSub}>
+                  Kategori: {selectedItem.category}
+                </Text>
+
+                <View style={styles.modalActions}>
+                  <TouchableOpacity
+                    style={styles.deleteBtn}
+                    onPress={() => handleDeleteItem(selectedItem.id)}
+                  >
+                    <Text style={styles.deleteText}>🗑️ Hapus Baju</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={styles.closeBtn}
+                    onPress={() => setSelectedItem(null)}
+                  >
+                    <Text style={styles.closeText}>Tutup</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL TAMBAH BAJU BARU */}
+      <Modal visible={isAddModalVisible} animationType="fade" transparent>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Tambah Item Baru 👕</Text>
+
+            <TextInput
+              style={styles.inputForm}
+              placeholder="Masukkan nama baju..."
+              placeholderTextColor="#A0B2C6"
+              value={newItemName}
+              onChangeText={setNewItemName}
+            />
+
+            <Text style={{ marginTop: 10, fontSize: 12, color: "#5C738B" }}>
+              Pilih Kategori:
             </Text>
+            <View style={styles.categoryPicker}>
+              {["Tops", "Bottoms", "Outer", "Dress", "Shoes"].map((cat) => (
+                <TouchableOpacity
+                  key={cat}
+                  style={[
+                    styles.miniChip,
+                    newItemCategory === cat && styles.chipActive,
+                  ]}
+                  onPress={() => setNewItemCategory(cat)}
+                >
+                  <Text
+                    style={[
+                      styles.miniChipText,
+                      newItemCategory === cat && styles.chipTextActive,
+                    ]}
+                  >
+                    {cat}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-            <Text style={styles.greeting}>Find your style</Text>
-          </View>
-
-          <Pressable style={styles.notificationButton}>
-            <Text style={styles.notificationIcon}>♡</Text>
-          </Pressable>
-        </View>
-
-        {/* SEARCH */}
-        <View style={styles.searchContainer}>
-          <Text style={styles.searchIcon}>⌕</Text>
-
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Cari outfit, gaya, atau inspirasi..."
-            placeholderTextColor="#8CA7B7"
-          />
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* BANNER */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <Pressable style={styles.banner}>
-          <View style={styles.bannerTextContainer}>
-            <Text style={styles.bannerSmallText}>FITMATCH</Text>
-
-            <Text style={styles.bannerTitle}>Good Outfit</Text>
-
-            <Text style={styles.bannerTitle}>Good Mood ♡</Text>
-
-            <Text style={styles.bannerSubtitle}>Temukan gaya terbaikmu</Text>
-          </View>
-
-          {/* Placeholder gambar */}
-          <View style={styles.bannerImage}>
-            <Text style={styles.imagePlaceholder}>Outfit</Text>
-          </View>
-        </Pressable>
-
-        <View style={styles.bannerDots}>
-          <View style={styles.activeDot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-          <View style={styles.dot} />
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* FOR YOU */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>♡</Text>
-
-            <Text style={styles.sectionTitle}>For You</Text>
-          </View>
-
-          <Pressable>
-            <Text style={styles.seeAll}>Lihat semua ›</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalCards}
-        >
-          {outfits.map((outfit) => renderOutfit(outfit))}
-        </ScrollView>
-      </View>
-
-      {/* ========================= */}
-      {/* TRENDING */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>♧</Text>
-
-            <Text style={styles.sectionTitle}>Trending</Text>
-          </View>
-
-          <Pressable>
-            <Text style={styles.seeAll}>Lihat semua ›</Text>
-          </Pressable>
-        </View>
-
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.horizontalCards}
-        >
-          {trendingOutfits.map((outfit) => renderOutfit(outfit))}
-        </ScrollView>
-      </View>
-
-      {/* ========================= */}
-      {/* EXPLORE FITMATCH */}
-      {/* ========================= */}
-
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <View style={styles.sectionTitleContainer}>
-            <Text style={styles.sectionIcon}>✦</Text>
-
-            <Text style={styles.sectionTitle}>Explore FITMATCH</Text>
+            <View style={styles.modalActions}>
+              <TouchableOpacity style={styles.saveBtn} onPress={handleAddItem}>
+                <Text style={styles.saveText}>Simpan Ke Wardrobe</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.closeBtn}
+                onPress={() => setIsAddModalVisible(false)}
+              >
+                <Text style={styles.closeText}>Batal</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-
-        <View style={styles.featureGrid}>
-          {features.map((feature) => renderFeature(feature))}
-        </View>
-      </View>
-
-      {/* ========================= */}
-      {/* BOTTOM */}
-      {/* ========================= */}
-
-      <View style={styles.bottomSpace} />
-    </ScrollView>
+      </Modal>
+    </SafeAreaView>
   );
 }
+
+// PALETTE WARNA: BIRU PASTEL & PUTIH
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: "#FFFFFF" },
+  header: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 15,
+    paddingBottom: 10,
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#1E293B",
+    letterSpacing: 1,
+  },
+  editBtn: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: "#F0F5FA",
+    borderRadius: 12,
+  },
+  editText: { fontSize: 12, color: "#4A729D", fontWeight: "600" },
+  searchContainer: { paddingHorizontal: 20, marginBottom: 12 },
+  searchInput: {
+    backgroundColor: "#F0F5FA",
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    borderRadius: 12,
+    fontSize: 13,
+    color: "#1E293B",
+  },
+  categoryContainer: { paddingLeft: 20, paddingRight: 10 },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: "#F0F5FA",
+    marginRight: 8,
+    height: 35,
+    justifyContent: "center",
+  },
+  chipActive: { backgroundColor: "#7FA8D0" },
+  chipText: { fontSize: 12, color: "#4A729D" },
+  chipTextActive: { color: "#FFFFFF", fontWeight: "bold" },
+  infoBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    paddingHorizontal: 20,
+    marginBottom: 10,
+  },
+  infoText: { fontSize: 12, color: "#64748B" },
+  filterText: { fontSize: 12, color: "#1E293B", fontWeight: "600" },
+  gridContainer: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    paddingBottom: 80,
+  },
+  card: {
+    width: "48%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 14,
+    marginBottom: 15,
+    borderWidth: 1,
+    borderColor: "#E2E8F0",
+    overflow: "hidden",
+  },
+  cardImage: {
+    height: 120,
+    justifyContent: "center",
+    alignItems: "center",
+    position: "relative",
+  },
+  colorBadge: {
+    position: "absolute",
+    top: 8,
+    left: 8,
+    width: 14,
+    height: 14,
+    borderRadius: 7,
+    borderWidth: 1.5,
+    borderColor: "#FFFFFF",
+  },
+  cardBody: { padding: 10 },
+  cardTitle: { fontSize: 13, fontWeight: "bold", color: "#1E293B" },
+  cardSub: { fontSize: 11, color: "#64748B", marginTop: 2 },
+  fabButton: {
+    position: "absolute",
+    bottom: 25,
+    right: 20,
+    width: 55,
+    height: 55,
+    borderRadius: 28,
+    backgroundColor: "#7FA8D0",
+    justifyContent: "center",
+    alignItems: "center",
+    elevation: 5,
+    shadowColor: "#7FA8D0",
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+  },
+  fabIcon: { fontSize: 22, color: "#FFFFFF" },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.4)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  modalContent: {
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    borderRadius: 16,
+    padding: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    color: "#1E293B",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  modalImage: {
+    height: 140,
+    borderRadius: 12,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 10,
+  },
+  modalSub: { textAlign: "center", color: "#64748B", marginBottom: 15 },
+  modalActions: { gap: 10 },
+  saveBtn: {
+    backgroundColor: "#7FA8D0",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  saveText: { color: "#FFFFFF", fontWeight: "bold" },
+  deleteBtn: {
+    backgroundColor: "#FEF2F2",
+    padding: 12,
+    borderRadius: 10,
+    alignItems: "center",
+  },
+  deleteText: { color: "#EF4444", fontWeight: "bold" },
+  closeBtn: { padding: 10, alignItems: "center" },
+  closeText: { color: "#64748B" },
+  inputForm: {
+    borderWidth: 1,
+    borderColor: "#CBD5E1",
+    borderRadius: 10,
+    padding: 10,
+    marginVertical: 10,
+    color: "#1E293B",
+  },
+  categoryPicker: {
+    flexDirection: "row",
+    flexWrap: "wrap",
+    gap: 6,
+    marginVertical: 10,
+  },
+  miniChip: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 15,
+    backgroundColor: "#F0F5FA",
+  },
+  miniChipText: { fontSize: 11, color: "#4A729D" },
+});
