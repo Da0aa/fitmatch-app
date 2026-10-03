@@ -171,3 +171,5 @@ export const styles = StyleSheet.create({
   },
   miniChipText: { fontSize: 11, color: "#4A729D" },
 });
+
+export default styles;

@@ -8,8 +8,7 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import styles from "./styles";
-
+import styles from "../styles/homeStyles";
 interface Outfit {
   id: number;
   name: string;

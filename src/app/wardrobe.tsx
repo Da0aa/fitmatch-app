@@ -1,17 +1,16 @@
 import { useState } from "react";
 import {
-  Alert,
-  Modal,
-  ScrollView,
-  StatusBar,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
+    Alert,
+    Modal,
+    ScrollView,
+    StatusBar,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { styles } from "./styles"; // Import External Styling
-
+import styles from "../styles/wardrobeStyles";
 interface WardrobeItem {
   id: string;
   name: string;

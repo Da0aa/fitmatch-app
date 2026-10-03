@@ -1,235 +1,347 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  // ==============================
+  // =========================
   // CONTAINER
-  // ==============================
+  // =========================
 
   container: {
     flex: 1,
-    backgroundColor: "#F7FBFF",
+    backgroundColor: "#F4FAFD",
   },
 
-  content: {
-    padding: 20,
-    paddingBottom: 40,
+  scrollContent: {
+    paddingBottom: 30,
   },
 
-  // ==============================
+  desktopContent: {
+    alignItems: "center",
+  },
+
+  // =========================
   // HEADER
-  // ==============================
+  // =========================
 
   header: {
-    backgroundColor: "#DCEFFC",
-    borderRadius: 24,
-    padding: 24,
-    marginBottom: 24,
+    width: "100%",
+    backgroundColor: "#FFFFFF",
+    paddingHorizontal: 24,
+    paddingTop: 28,
+    paddingBottom: 20,
+    borderBottomLeftRadius: 28,
+    borderBottomRightRadius: 28,
+  },
+
+  headerTop: {
+    width: "100%",
+    maxWidth: 850,
+    alignSelf: "center",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
 
   logo: {
-    fontSize: 18,
-    fontWeight: "800",
-    color: "#4C89AE",
-    letterSpacing: 2,
-    marginBottom: 12,
-  },
-
-  title: {
     fontSize: 30,
-    fontWeight: "800",
-    color: "#23445A",
-    marginBottom: 8,
+    fontWeight: "bold",
+    color: "#4B8FC4",
   },
 
-  subtitle: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: "#5B6F82",
+  greeting: {
+    fontSize: 14,
+    color: "#7893A3",
+    marginTop: 4,
   },
 
-  // ==============================
+  notificationButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#EAF6FC",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  notificationIcon: {
+    fontSize: 24,
+    color: "#4B8FC4",
+  },
+
+  // =========================
+  // SEARCH
+  // =========================
+
+  searchContainer: {
+    width: "100%",
+    maxWidth: 850,
+    alignSelf: "center",
+    height: 46,
+    backgroundColor: "#EDF6FB",
+    borderRadius: 24,
+    marginTop: 18,
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+  },
+
+  searchIcon: {
+    fontSize: 25,
+    color: "#78A7C4",
+    marginRight: 8,
+  },
+
+  searchInput: {
+    flex: 1,
+    fontSize: 13,
+    color: "#315B73",
+    paddingVertical: 0,
+  },
+
+  // =========================
   // SECTION
-  // ==============================
+  // =========================
 
   section: {
-    marginBottom: 24,
+    width: "100%",
+    maxWidth: 850,
+    paddingHorizontal: 24,
+    marginTop: 24,
   },
 
-  sectionTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: "#23445A",
-    marginBottom: 4,
-  },
-
-  sectionSubtitle: {
-    fontSize: 13,
-    color: "#7890A1",
+  sectionHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
     marginBottom: 14,
   },
 
-  // ==============================
-  // OUTFIT CARD
-  // ==============================
-
-  outfitCard: {
+  sectionTitleContainer: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    padding: 14,
-    marginBottom: 12,
+  },
 
-    shadowColor: "#8FB9D1",
+  sectionIcon: {
+    fontSize: 20,
+    color: "#5B9CCB",
+    marginRight: 7,
+  },
+
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#315B73",
+  },
+
+  seeAll: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#6B9FBE",
+  },
+
+  // =========================
+  // BANNER
+  // =========================
+
+  banner: {
+    width: "100%",
+    minHeight: 175,
+    backgroundColor: "#DCEFFA",
+    borderRadius: 20,
+    padding: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+
+  bannerTextContainer: {
+    flex: 1,
+    paddingRight: 10,
+  },
+
+  bannerSmallText: {
+    fontSize: 10,
+    fontWeight: "bold",
+    color: "#76A7C4",
+    letterSpacing: 1,
+    marginBottom: 5,
+  },
+
+  bannerTitle: {
+    fontSize: 23,
+    fontWeight: "bold",
+    color: "#3D78A4",
+  },
+
+  bannerSubtitle: {
+    fontSize: 12,
+    color: "#7193A6",
+    marginTop: 9,
+  },
+
+  bannerImage: {
+    width: 125,
+    height: 135,
+    backgroundColor: "#C5E2F3",
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  bannerDots: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10,
+    gap: 7,
+  },
+
+  activeDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: "#5D9FD0",
+  },
+
+  dot: {
+    width: 7,
+    height: 7,
+    borderRadius: 4,
+    backgroundColor: "#D4E5EE",
+  },
+
+  // =========================
+  // OUTFIT CARDS
+  // =========================
+
+  horizontalCards: {
+    gap: 12,
+    paddingRight: 24,
+  },
+
+  outfitCard: {
+    width: 150,
+    backgroundColor: "#FFFFFF",
+    borderRadius: 17,
+    paddingBottom: 13,
+    overflow: "hidden",
+
+    shadowColor: "#76A9C5",
     shadowOffset: {
       width: 0,
       height: 3,
     },
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-
-    elevation: 3,
+    shadowOpacity: 0.1,
+    shadowRadius: 7,
+    elevation: 2,
   },
 
-  outfitIcon: {
-    width: 58,
-    height: 58,
-    borderRadius: 16,
-    backgroundColor: "#DCEFFC",
+  outfitImage: {
+    width: "100%",
+    height: 155,
+    backgroundColor: "#DCECF5",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 14,
   },
 
-  outfitIconText: {
-    fontSize: 28,
-  },
-
-  outfitInfo: {
-    flex: 1,
+  imagePlaceholder: {
+    fontSize: 12,
+    color: "#8AA9BA",
   },
 
   outfitName: {
-    fontSize: 16,
-    fontWeight: "700",
-    color: "#294B61",
-    marginBottom: 3,
+    fontSize: 14,
+    fontWeight: "bold",
+    color: "#315B73",
+    marginTop: 10,
+    paddingHorizontal: 12,
   },
 
   outfitCategory: {
-    fontSize: 12,
-    fontWeight: "600",
-    color: "#6BA5C6",
-    marginBottom: 4,
+    fontSize: 11,
+    color: "#79A7C1",
+    marginTop: 3,
+    paddingHorizontal: 12,
   },
 
-  outfitDescription: {
-    fontSize: 12,
-    color: "#7B8D99",
-    lineHeight: 17,
+  cardPressed: {
+    opacity: 0.7,
+    transform: [
+      {
+        scale: 0.98,
+      },
+    ],
   },
 
-  // ==============================
-  // TRENDING
-  // ==============================
+  // =========================
+  // FEATURES
+  // =========================
 
-  trendingContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+  featureGrid: {
     gap: 10,
   },
 
-  trendingCard: {
-    flex: 1,
+  featureCard: {
+    width: "100%",
     backgroundColor: "#FFFFFF",
-    borderRadius: 18,
-    paddingVertical: 18,
-    alignItems: "center",
-    borderWidth: 1,
-    borderColor: "#D7EAF5",
-  },
-
-  trendingEmoji: {
-    fontSize: 30,
-    marginBottom: 8,
-  },
-
-  trendingText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#45677C",
-  },
-
-  // ==============================
-  // EXPLORE STYLE
-  // ==============================
-
-  styleContainer: {
+    borderRadius: 17,
+    padding: 14,
     flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 10,
-  },
-
-  styleChip: {
-    backgroundColor: "#FFFFFF",
-    borderWidth: 1,
-    borderColor: "#B9DDF2",
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-  },
-
-  styleChipText: {
-    color: "#4C89AE",
-    fontSize: 13,
-    fontWeight: "600",
-  },
-
-  // ==============================
-  // MATCH BUTTON
-  // ==============================
-
-  matchButton: {
-    backgroundColor: "#8FC6E3",
-    borderRadius: 20,
-    padding: 20,
     alignItems: "center",
-    marginTop: 4,
-    marginBottom: 24,
 
-    shadowColor: "#6BA5C6",
+    shadowColor: "#76A9C5",
     shadowOffset: {
       width: 0,
-      height: 4,
+      height: 2,
     },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.08,
     shadowRadius: 6,
-
-    elevation: 4,
+    elevation: 2,
   },
 
-  matchButtonText: {
-    color: "#FFFFFF",
-    fontSize: 17,
-    fontWeight: "800",
-    marginBottom: 5,
+  featureIcon: {
+    width: 44,
+    height: 44,
+    borderRadius: 14,
+    backgroundColor: "#C8E5F5",
+    alignItems: "center",
+    justifyContent: "center",
+    marginRight: 13,
   },
 
-  matchButtonSubtext: {
-    color: "#F7FBFF",
-    fontSize: 12,
-    textAlign: "center",
+  featureIconText: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#39779E",
   },
 
-  // ==============================
-  // FOOTER
-  // ==============================
+  featureContent: {
+    flex: 1,
+  },
 
-  footer: {
-    textAlign: "center",
-    color: "#8AA1B0",
-    fontSize: 12,
-    marginTop: 4,
+  featureTitle: {
+    fontSize: 15,
+    fontWeight: "bold",
+    color: "#315B73",
+  },
+
+  featureDescription: {
+    fontSize: 11,
+    color: "#7B96A5",
+    marginTop: 3,
+  },
+
+  featureArrow: {
+    fontSize: 27,
+    color: "#75A7C2",
+    marginLeft: 8,
+  },
+
+  // =========================
+  // BOTTOM
+  // =========================
+
+  bottomSpace: {
+    height: 45,
   },
 });
 
