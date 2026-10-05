@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import styles from "../styles/matchStyles";
+
 // =====================================================
 // TYPE / INTERFACE
 // =====================================================
@@ -17,10 +18,11 @@ interface Outfit {
   occasion: string;
   style: string;
   color: string;
+  image: string;
 }
 
 // =====================================================
-// ARRAY OF OBJECTS
+// OPTION DATA
 // =====================================================
 
 const occasions: MatchOption[] = [
@@ -69,7 +71,7 @@ const colors: MatchOption[] = [
 ];
 
 // =====================================================
-// DATA OUTFIT
+// OUTFIT DATA
 // =====================================================
 
 const outfits: Outfit[] = [
@@ -79,6 +81,8 @@ const outfits: Outfit[] = [
     occasion: "Casual",
     style: "Minimalist",
     color: "Black",
+    image:
+      "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?auto=format&fit=crop&w=900&q=80",
   },
 
   {
@@ -87,6 +91,8 @@ const outfits: Outfit[] = [
     occasion: "Formal",
     style: "Classic",
     color: "White",
+    image:
+      "https://images.unsplash.com/photo-1496747611176-843222e1e57c?auto=format&fit=crop&w=900&q=80",
   },
 
   {
@@ -95,6 +101,8 @@ const outfits: Outfit[] = [
     occasion: "Casual",
     style: "Streetwear",
     color: "Beige",
+    image:
+      "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=900&q=80",
   },
 
   {
@@ -103,6 +111,8 @@ const outfits: Outfit[] = [
     occasion: "Party",
     style: "Streetwear",
     color: "Black",
+    image:
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=900&q=80",
   },
 ];
 
@@ -120,7 +130,7 @@ export default function Match() {
   const [result, setResult] = useState<Outfit | null>(null);
 
   // ===================================================
-  // CUSTOM FUNCTION UNTUK MENCARI OUTFIT
+  // FIND MATCH
   // ===================================================
 
   const findMatch = () => {
@@ -135,7 +145,7 @@ export default function Match() {
   };
 
   // ===================================================
-  // CUSTOM FUNCTION UNTUK MEMBUAT OPTION
+  // OPTION COMPONENT
   // ===================================================
 
   const renderOption = (
@@ -161,25 +171,63 @@ export default function Match() {
   };
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.content}>
-        {/* =========================================
-            HEADER
-        ========================================= */}
+        {/* =================================================
+            TOP LABEL
+        ================================================= */}
 
         <Text style={styles.logo}>FITMATCH</Text>
 
-        <Text style={styles.title}>Find Your Fit ✨</Text>
+        {/* =================================================
+            HERO
+        ================================================= */}
 
-        <Text style={styles.subtitle}>
-          Choose your occasion, style, and color to find the perfect outfit.
-        </Text>
+        <View style={styles.heroCard}>
+          <Image
+            source={{
+              uri: "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1200&q=80",
+            }}
+            style={styles.heroImage}
+          />
 
-        {/* =========================================
+          <View style={styles.heroOverlay} />
+
+          <View style={styles.heroText}>
+            <Text style={styles.heroSmallText}>YOUR STYLE, YOUR MATCH</Text>
+
+            <Text style={styles.heroTitle}>Find Your Fit</Text>
+
+            <Text style={styles.heroDescription}>
+              Mix your vibe, occasion & color.
+            </Text>
+          </View>
+        </View>
+
+        {/* =================================================
+            INTRO
+        ================================================= */}
+
+        <View style={styles.intro}>
+          <Text style={styles.title}>Find Your Fit ✨</Text>
+
+          <Text style={styles.subtitle}>
+            Choose your preferences and let FITMATCH find an outfit that matches
+            your vibe.
+          </Text>
+        </View>
+
+        {/* =================================================
             OCCASION
-        ========================================= */}
+        ================================================= */}
 
-        <Text style={styles.sectionTitle}>Occasion</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionNumber}>01</Text>
+
+          <Text style={styles.sectionTitle}>Occasion</Text>
+        </View>
+
+        <Text style={styles.sectionDescription}>Where are you going?</Text>
 
         <View style={styles.optionContainer}>
           {occasions.map((option) =>
@@ -187,11 +235,17 @@ export default function Match() {
           )}
         </View>
 
-        {/* =========================================
+        {/* =================================================
             STYLE
-        ========================================= */}
+        ================================================= */}
 
-        <Text style={styles.sectionTitle}>Style</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionNumber}>02</Text>
+
+          <Text style={styles.sectionTitle}>Style</Text>
+        </View>
+
+        <Text style={styles.sectionDescription}>What's your fashion vibe?</Text>
 
         <View style={styles.optionContainer}>
           {styleOptions.map((option) =>
@@ -199,11 +253,17 @@ export default function Match() {
           )}
         </View>
 
-        {/* =========================================
+        {/* =================================================
             COLOR
-        ========================================= */}
+        ================================================= */}
 
-        <Text style={styles.sectionTitle}>Color</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={styles.sectionNumber}>03</Text>
+
+          <Text style={styles.sectionTitle}>Color</Text>
+        </View>
+
+        <Text style={styles.sectionDescription}>Pick your main color.</Text>
 
         <View style={styles.optionContainer}>
           {colors.map((option) =>
@@ -211,44 +271,61 @@ export default function Match() {
           )}
         </View>
 
-        {/* =========================================
+        {/* =================================================
             BUTTON
-        ========================================= */}
+        ================================================= */}
 
-        <Pressable onPress={findMatch} style={styles.matchButton}>
+        <Pressable
+          onPress={findMatch}
+          style={({ pressed }) => [
+            styles.matchButton,
+            pressed && styles.matchButtonPressed,
+          ]}
+        >
           <Text style={styles.matchButtonText}>FIND MY FIT</Text>
+
+          <Text style={styles.matchButtonArrow}>→</Text>
         </Pressable>
 
-        {/* =========================================
-            MATCH RESULT
-        ========================================= */}
+        {/* =================================================
+            RESULT
+        ================================================= */}
 
         {result && (
           <View style={styles.resultContainer}>
-            <Text style={styles.resultTitle}>Your Match ✨</Text>
+            <Text style={styles.resultLabel}>✦ YOUR MATCH</Text>
 
-            <Text style={styles.resultName}>{result.name}</Text>
+            <Image source={{ uri: result.image }} style={styles.resultImage} />
 
-            <Text style={styles.resultDetail}>
-              {result.occasion} • {result.style} • {result.color}
-            </Text>
+            <View style={styles.resultContent}>
+              <Text style={styles.resultTitle}>You got a match!</Text>
 
-            {/* INLINE STYLE */}
-            <Text
-              style={{
-                marginTop: 15,
-                color: "#999999",
-                fontSize: 12,
-              }}
-            >
-              FITMATCH • Your Style, Your Match
-            </Text>
+              <Text style={styles.resultName}>{result.name}</Text>
+
+              <View style={styles.resultTags}>
+                <View style={styles.resultTag}>
+                  <Text style={styles.resultTagText}>{result.occasion}</Text>
+                </View>
+
+                <View style={styles.resultTag}>
+                  <Text style={styles.resultTagText}>{result.style}</Text>
+                </View>
+
+                <View style={styles.resultTag}>
+                  <Text style={styles.resultTagText}>{result.color}</Text>
+                </View>
+              </View>
+
+              <Text style={styles.resultFooter}>
+                FITMATCH • Your Style, Your Match
+              </Text>
+            </View>
           </View>
         )}
 
-        {/* =========================================
+        {/* =================================================
             NO RESULT
-        ========================================= */}
+        ================================================= */}
 
         {!result && selectedOccasion && selectedStyle && selectedColor && (
           <View style={styles.resultContainer}>
@@ -260,12 +337,12 @@ export default function Match() {
           </View>
         )}
 
-        {/* =========================================
+        {/* =================================================
             HINT
-        ========================================= */}
+        ================================================= */}
 
         <Text style={styles.hint}>
-          Choose all preferences to find your fit.
+          Choose all preferences to discover your fit ✦
         </Text>
       </View>
     </ScrollView>

@@ -1,16 +1,18 @@
 import { useState } from "react";
 import {
-    Alert,
-    Modal,
-    ScrollView,
-    StatusBar,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Alert,
+  Modal,
+  ScrollView,
+  StatusBar,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
 import styles from "../styles/wardrobeStyles";
+
 interface WardrobeItem {
   id: string;
   name: string;
@@ -19,21 +21,21 @@ interface WardrobeItem {
   bgColor: string;
 }
 
+const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
+
 export default function WardrobeScreen() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+
   const [searchQuery, setSearchQuery] = useState("");
 
-  // State untuk Modal Tambah Baju
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
+
   const [newItemName, setNewItemName] = useState("");
+
   const [newItemCategory, setNewItemCategory] = useState("Tops");
 
-  // State untuk Modal Detail Baju
   const [selectedItem, setSelectedItem] = useState<WardrobeItem | null>(null);
 
-  const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
-
-  // Data State Baju
   const [wardrobeItems, setWardrobeItems] = useState<WardrobeItem[]>([
     {
       id: "1",
@@ -79,26 +81,57 @@ export default function WardrobeScreen() {
     },
   ]);
 
-  // Filter Kategori & Search Bar
+  // ==============================
+  // GET EMOJI
+  // ==============================
+
+  const getCategoryEmoji = (category: string) => {
+    switch (category) {
+      case "Tops":
+        return "👕";
+
+      case "Bottoms":
+        return "👖";
+
+      case "Outer":
+        return "🧥";
+
+      case "Dress":
+        return "👗";
+
+      case "Shoes":
+        return "👟";
+
+      default:
+        return "👔";
+    }
+  };
+
+  // ==============================
+  // FILTER
+  // ==============================
+
   const filteredItems = wardrobeItems.filter((item) => {
-    const cleanSearch = searchQuery.trim().toLowerCase();
-    const cleanCategory = selectedCategory.trim().toLowerCase();
+    const search = searchQuery.trim().toLowerCase();
 
     const matchesCategory =
-      cleanCategory === "all" ||
-      cleanCategory === "semua" ||
-      item.category.toLowerCase() === cleanCategory;
+      selectedCategory === "All" || item.category === selectedCategory;
 
     const matchesSearch =
-      cleanSearch === "" || item.name.toLowerCase().includes(cleanSearch);
+      search === "" ||
+      item.name.toLowerCase().includes(search) ||
+      item.category.toLowerCase().includes(search);
 
     return matchesCategory && matchesSearch;
   });
 
-  // Fungsi Tambah Baju
+  // ==============================
+  // ADD ITEM
+  // ==============================
+
   const handleAddItem = () => {
     if (!newItemName.trim()) {
-      Alert.alert("Peringatan", "Masukkan nama baju terlebih dahulu!");
+      Alert.alert("Peringatan", "Masukkan nama pakaian terlebih dahulu!");
       return;
     }
 
@@ -110,35 +143,50 @@ export default function WardrobeScreen() {
       bgColor: "#E3EDF7",
     };
 
-    setWardrobeItems([newItem, ...wardrobeItems]);
+    setWardrobeItems((currentItems) => [newItem, ...currentItems]);
+
     setNewItemName("");
+    setNewItemCategory("Tops");
     setIsAddModalVisible(false);
-    Alert.alert("Berhasil", "Baju baru telah ditambahkan ke lemari!");
+
+    Alert.alert("Berhasil", "Pakaian berhasil ditambahkan ke wardrobe!");
   };
 
-  // Fungsi Hapus Baju
+  // ==============================
+  // DELETE ITEM
+  // ==============================
+
   const handleDeleteItem = (id: string) => {
-    setWardrobeItems(wardrobeItems.filter((item) => item.id !== id));
+    setWardrobeItems((currentItems) =>
+      currentItems.filter((item) => item.id !== id),
+    );
+
     setSelectedItem(null);
-    Alert.alert("Dihapus", "Item berhasil dihapus dari lemari.");
+
+    Alert.alert("Dihapus", "Pakaian berhasil dihapus dari wardrobe.");
   };
 
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
-      {/* 1. HEADER */}
+      {/* HEADER */}
+
       <View style={styles.header}>
         <Text style={styles.headerTitle}>WARDROBE</Text>
+
         <TouchableOpacity
           style={styles.editBtn}
-          onPress={() => Alert.alert("Info", "Mode kelola diaktifkan")}
+          onPress={() =>
+            Alert.alert("Info", "Mode kelola wardrobe diaktifkan.")
+          }
         >
           <Text style={styles.editText}>Manage</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 2. SEARCH BAR */}
+      {/* SEARCH */}
+
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -149,26 +197,27 @@ export default function WardrobeScreen() {
         />
       </View>
 
-      {/* 3. CATEGORY CHIPS */}
-      <View style={{ maxHeight: 45, marginBottom: 10 }}>
+      {/* CATEGORY */}
+
+      <View style={styles.categoryWrapper}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.categoryContainer}
         >
-          {categories.map((item, index) => {
-            const isActive =
-              selectedCategory.toLowerCase() === item.toLowerCase();
+          {categories.map((category) => {
+            const isActive = selectedCategory === category;
+
             return (
               <TouchableOpacity
-                key={index}
+                key={category}
                 style={[styles.chip, isActive && styles.chipActive]}
-                onPress={() => setSelectedCategory(item)}
+                onPress={() => setSelectedCategory(category)}
               >
                 <Text
                   style={[styles.chipText, isActive && styles.chipTextActive]}
                 >
-                  {item}
+                  {category}
                 </Text>
               </TouchableOpacity>
             );
@@ -176,94 +225,122 @@ export default function WardrobeScreen() {
         </ScrollView>
       </View>
 
-      {/* 4. INFO BAR */}
+      {/* INFO BAR */}
+
       <View style={styles.infoBar}>
         <Text style={styles.infoText}>
-          {filteredItems.length} Items ditampilkan
+          {filteredItems.length} {filteredItems.length === 1 ? "Item" : "Items"}{" "}
+          displayed
         </Text>
+
         <TouchableOpacity
           onPress={() =>
-            Alert.alert("Filter", "Pilih filter berdasarkan warna atau event")
+            Alert.alert(
+              "Filter",
+              "Pilih kategori menggunakan tombol kategori di atas.",
+            )
           }
         >
           <Text style={styles.filterText}>🏷 Filter ▾</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 5. GRID KATALOG BAJU */}
-      <ScrollView showsVerticalScrollIndicator={false} style={{ flex: 1 }}>
+      {/* GRID */}
+
+      <ScrollView style={styles.list} showsVerticalScrollIndicator={false}>
         <View style={styles.gridContainer}>
-          {filteredItems.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.card}
-              onPress={() => setSelectedItem(item)}
-            >
-              <View
-                style={[styles.cardImage, { backgroundColor: item.bgColor }]}
+          {filteredItems.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyEmoji}>👕</Text>
+
+              <Text style={styles.emptyTitle}>No items found</Text>
+
+              <Text style={styles.emptyText}>
+                Try another search or category.
+              </Text>
+            </View>
+          ) : (
+            filteredItems.map((item) => (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.card}
+                onPress={() => setSelectedItem(item)}
+                activeOpacity={0.8}
               >
                 <View
                   style={[
-                    styles.colorBadge,
-                    { backgroundColor: item.colorTag },
+                    styles.cardImage,
+                    {
+                      backgroundColor: item.bgColor,
+                    },
                   ]}
-                />
-                <Text style={{ fontSize: 36 }}>
-                  {item.category === "Tops"
-                    ? "👕"
-                    : item.category === "Bottoms"
-                      ? "👖"
-                      : item.category === "Outer"
-                        ? "🧥"
-                        : item.category === "Dress"
-                          ? "👗"
-                          : "👟"}
-                </Text>
-              </View>
-              <View style={styles.cardBody}>
-                <Text style={styles.cardTitle}>{item.name}</Text>
-                <Text style={styles.cardSub}>{item.category}</Text>
-              </View>
-            </TouchableOpacity>
-          ))}
+                >
+                  <View
+                    style={[
+                      styles.colorBadge,
+                      {
+                        backgroundColor: item.colorTag,
+                      },
+                    ]}
+                  />
+
+                  <Text style={styles.itemEmoji}>
+                    {getCategoryEmoji(item.category)}
+                  </Text>
+                </View>
+
+                <View style={styles.cardBody}>
+                  <Text style={styles.cardTitle} numberOfLines={1}>
+                    {item.name}
+                  </Text>
+
+                  <Text style={styles.cardSub}>{item.category}</Text>
+                </View>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
       </ScrollView>
 
-      {/* 6. FAB TAMBAH BAJU ("+") */}
+      {/* ADD BUTTON */}
+
       <TouchableOpacity
         style={styles.fabButton}
         onPress={() => setIsAddModalVisible(true)}
+        activeOpacity={0.8}
       >
-        <Text style={styles.fabIcon}>➕</Text>
+        <Text style={styles.fabIcon}>＋</Text>
       </TouchableOpacity>
 
-      {/* MODAL DETAIL BAJU */}
-      <Modal visible={selectedItem !== null} animationType="slide" transparent>
+      {/* DETAIL MODAL */}
+
+      <Modal
+        visible={selectedItem !== null}
+        animationType="slide"
+        transparent
+        onRequestClose={() => setSelectedItem(null)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             {selectedItem && (
               <>
                 <Text style={styles.modalTitle}>{selectedItem.name}</Text>
+
                 <View
                   style={[
                     styles.modalImage,
-                    { backgroundColor: selectedItem.bgColor },
+                    {
+                      backgroundColor: selectedItem.bgColor,
+                    },
                   ]}
                 >
-                  <Text style={{ fontSize: 60 }}>
-                    {selectedItem.category === "Tops"
-                      ? "👕"
-                      : selectedItem.category === "Bottoms"
-                        ? "👖"
-                        : selectedItem.category === "Outer"
-                          ? "🧥"
-                          : selectedItem.category === "Dress"
-                            ? "👗"
-                            : "👟"}
+                  <Text style={styles.modalEmoji}>
+                    {getCategoryEmoji(selectedItem.category)}
                   </Text>
                 </View>
+
                 <Text style={styles.modalSub}>
-                  Kategori: {selectedItem.category}
+                  Category: {selectedItem.category}
                 </Text>
 
                 <View style={styles.modalActions}>
@@ -271,13 +348,14 @@ export default function WardrobeScreen() {
                     style={styles.deleteBtn}
                     onPress={() => handleDeleteItem(selectedItem.id)}
                   >
-                    <Text style={styles.deleteText}>🗑️ Hapus Baju</Text>
+                    <Text style={styles.deleteText}>🗑️ Delete Item</Text>
                   </TouchableOpacity>
+
                   <TouchableOpacity
                     style={styles.closeBtn}
                     onPress={() => setSelectedItem(null)}
                   >
-                    <Text style={styles.closeText}>Tutup</Text>
+                    <Text style={styles.closeText}>Close</Text>
                   </TouchableOpacity>
                 </View>
               </>
@@ -286,54 +364,66 @@ export default function WardrobeScreen() {
         </View>
       </Modal>
 
-      {/* MODAL TAMBAH BAJU BARU */}
-      <Modal visible={isAddModalVisible} animationType="fade" transparent>
+      {/* ADD ITEM MODAL */}
+
+      <Modal
+        visible={isAddModalVisible}
+        animationType="fade"
+        transparent
+        onRequestClose={() => setIsAddModalVisible(false)}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Tambah Item Baru 👕</Text>
+            <Text style={styles.modalTitle}>Add New Item 👕</Text>
 
             <TextInput
               style={styles.inputForm}
-              placeholder="Masukkan nama baju..."
+              placeholder="Enter item name..."
               placeholderTextColor="#A0B2C6"
               value={newItemName}
               onChangeText={setNewItemName}
             />
 
-            <Text style={{ marginTop: 10, fontSize: 12, color: "#5C738B" }}>
-              Pilih Kategori:
-            </Text>
+            <Text style={styles.selectLabel}>Select Category:</Text>
+
             <View style={styles.categoryPicker}>
-              {["Tops", "Bottoms", "Outer", "Dress", "Shoes"].map((cat) => (
-                <TouchableOpacity
-                  key={cat}
-                  style={[
-                    styles.miniChip,
-                    newItemCategory === cat && styles.chipActive,
-                  ]}
-                  onPress={() => setNewItemCategory(cat)}
-                >
-                  <Text
-                    style={[
-                      styles.miniChipText,
-                      newItemCategory === cat && styles.chipTextActive,
-                    ]}
-                  >
-                    {cat}
-                  </Text>
-                </TouchableOpacity>
-              ))}
+              {categories
+                .filter((category) => category !== "All")
+                .map((category) => {
+                  const isSelected = newItemCategory === category;
+
+                  return (
+                    <TouchableOpacity
+                      key={category}
+                      style={[styles.miniChip, isSelected && styles.chipActive]}
+                      onPress={() => setNewItemCategory(category)}
+                    >
+                      <Text
+                        style={[
+                          styles.miniChipText,
+                          isSelected && styles.chipTextActive,
+                        ]}
+                      >
+                        {category}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
             </View>
 
             <View style={styles.modalActions}>
               <TouchableOpacity style={styles.saveBtn} onPress={handleAddItem}>
-                <Text style={styles.saveText}>Simpan Ke Wardrobe</Text>
+                <Text style={styles.saveText}>Save to Wardrobe</Text>
               </TouchableOpacity>
+
               <TouchableOpacity
                 style={styles.closeBtn}
-                onPress={() => setIsAddModalVisible(false)}
+                onPress={() => {
+                  setNewItemName("");
+                  setIsAddModalVisible(false);
+                }}
               >
-                <Text style={styles.closeText}>Batal</Text>
+                <Text style={styles.closeText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </View>
