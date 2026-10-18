@@ -5,6 +5,7 @@ export default function GuideLayout() {
     <Stack>
       <Stack.Screen name="index" options={{ title: "FITMATCH Guide" }} />
       <Stack.Screen name="style" options={{ title: "Style Guide" }} />
+      <Stack.Screen name="[category]" options={{ title: "Style Category" }} />
     </Stack>
   );
 }
