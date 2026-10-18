@@ -1,5 +1,6 @@
 import { router } from "expo-router";
 import {
+  Image,
   Pressable,
   ScrollView,
   Text,
@@ -8,12 +9,13 @@ import {
   useWindowDimensions,
 } from "react-native";
 
-import styles from "./styles";
+import styles from "../styles/styles";
 
 interface Outfit {
   id: number;
   name: string;
   category: string;
+  image: string;
   description?: string;
 }
 
@@ -29,16 +31,22 @@ const outfits: Outfit[] = [
     id: 1,
     name: "Casual Blue",
     category: "Casual",
+    image:
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: 2,
     name: "Street Style",
     category: "Street",
+    image:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: 3,
     name: "Clean White",
     category: "Minimalist",
+    image:
+      "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=600&q=80",
   },
 ];
 
@@ -47,16 +55,22 @@ const trendingOutfits: Outfit[] = [
     id: 4,
     name: "Everyday Look",
     category: "Casual",
+    image:
+      "https://images.unsplash.com/photo-1434389677669-e08b4cac3105?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: 5,
     name: "Simple Couple",
     category: "Casual",
+    image:
+      "https://images.unsplash.com/photo-1516762689617-e1cffcef479d?auto=format&fit=crop&w=600&q=80",
   },
   {
     id: 6,
     name: "Soft Neutral",
     category: "Minimalist",
+    image:
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=600&q=80",
   },
 ];
 
@@ -101,10 +115,19 @@ const renderOutfit = (outfit: Outfit) => {
         styles.outfitCard,
         pressed && styles.cardPressed,
       ]}
+      onPress={() =>
+        router.push({
+          pathname: "/match",
+          params: { occasion: "Casual", style: outfit.category },
+        })
+      }
     >
-      {/* Placeholder gambar */}
-      <View style={styles.outfitImage}>
-        <Text style={styles.imagePlaceholder}>Outfit</Text>
+      <View style={[styles.outfitImage, { overflow: "hidden" }]}>
+        <Image
+          source={{ uri: outfit.image }}
+          style={{ width: "100%", height: "100%" }}
+          resizeMode="cover"
+        />
       </View>
 
       <Text style={styles.outfitName}>{outfit.name}</Text>
@@ -198,7 +221,7 @@ export default function HomeScreen() {
       {/* ========================= */}
 
       <View style={styles.section}>
-        <Pressable style={styles.banner}>
+        <Pressable style={styles.banner} onPress={() => router.push("/match")}>
           <View style={styles.bannerTextContainer}>
             <Text style={styles.bannerSmallText}>FITMATCH</Text>
 
@@ -209,9 +232,14 @@ export default function HomeScreen() {
             <Text style={styles.bannerSubtitle}>Temukan gaya terbaikmu</Text>
           </View>
 
-          {/* Placeholder gambar */}
-          <View style={styles.bannerImage}>
-            <Text style={styles.imagePlaceholder}>Outfit</Text>
+          <View style={[styles.bannerImage, { overflow: "hidden" }]}>
+            <Image
+              source={{
+                uri: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=600&q=80",
+              }}
+              style={{ width: "100%", height: "100%" }}
+              resizeMode="cover"
+            />
           </View>
         </Pressable>
 
@@ -235,7 +263,7 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>For You</Text>
           </View>
 
-          <Pressable>
+          <Pressable onPress={() => router.push("/match")}>
             <Text style={styles.seeAll}>Lihat semua ›</Text>
           </Pressable>
         </View>
@@ -261,7 +289,7 @@ export default function HomeScreen() {
             <Text style={styles.sectionTitle}>Trending</Text>
           </View>
 
-          <Pressable>
+          <Pressable onPress={() => router.push("/match")}>
             <Text style={styles.seeAll}>Lihat semua ›</Text>
           </Pressable>
         </View>

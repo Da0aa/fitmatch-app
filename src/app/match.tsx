@@ -1,5 +1,6 @@
-import { useState } from "react";
-import { Pressable, ScrollView, Text, View } from "react-native";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect, useMemo, useState } from "react";
+import { Image, Pressable, ScrollView, Text, View } from "react-native";
 
 import styles from "../styles/matchStyles";
 
@@ -18,6 +19,7 @@ interface Outfit {
   occasion: string;
   style: string;
   color: string;
+  image: string;
 }
 
 // =====================================================
@@ -25,52 +27,25 @@ interface Outfit {
 // =====================================================
 
 const occasions: MatchOption[] = [
-  {
-    id: 1,
-    name: "Casual",
-  },
-  {
-    id: 2,
-    name: "Formal",
-  },
-  {
-    id: 3,
-    name: "Party",
-  },
+  { id: 1, name: "Casual" },
+  { id: 2, name: "Formal" },
+  { id: 3, name: "Party" },
 ];
 
 const styleOptions: MatchOption[] = [
-  {
-    id: 1,
-    name: "Minimalist",
-  },
-  {
-    id: 2,
-    name: "Streetwear",
-  },
-  {
-    id: 3,
-    name: "Classic",
-  },
+  { id: 1, name: "Minimalist" },
+  { id: 2, name: "Streetwear" },
+  { id: 3, name: "Classic" },
 ];
 
 const colors: MatchOption[] = [
-  {
-    id: 1,
-    name: "Black",
-  },
-  {
-    id: 2,
-    name: "White",
-  },
-  {
-    id: 3,
-    name: "Beige",
-  },
+  { id: 1, name: "Black" },
+  { id: 2, name: "White" },
+  { id: 3, name: "Beige" },
 ];
 
 // =====================================================
-// DATA OUTFIT
+// DATA OUTFIT (DENGAN FOTO)
 // =====================================================
 
 const outfits: Outfit[] = [
@@ -80,49 +55,66 @@ const outfits: Outfit[] = [
     occasion: "Casual",
     style: "Minimalist",
     color: "Black",
+    image:
+      "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&w=600&q=80",
   },
-
   {
     id: 2,
     name: "White Classic Outfit",
     occasion: "Formal",
     style: "Classic",
     color: "White",
+    image:
+      "https://images.unsplash.com/photo-1485230895905-ec40ba36b9bc?auto=format&fit=crop&w=600&q=80",
   },
-
   {
     id: 3,
     name: "Beige Street Outfit",
     occasion: "Casual",
     style: "Streetwear",
     color: "Beige",
+    image:
+      "https://images.unsplash.com/photo-1509631179647-0177331693ae?auto=format&fit=crop&w=600&q=80",
   },
-
   {
     id: 4,
     name: "Black Street Party Outfit",
     occasion: "Party",
     style: "Streetwear",
     color: "Black",
+    image:
+      "https://images.unsplash.com/photo-1539109136881-3be0616acf4b?auto=format&fit=crop&w=600&q=80",
   },
 ];
 
 // =====================================================
-// MATCH SCREEN
+// MATCH SCREEN (MODUL 2: HOOKS & EXPO ROUTER)
 // =====================================================
 
 export default function Match() {
-  const [selectedOccasion, setSelectedOccasion] = useState("");
+  const router = useRouter();
+  const params = useLocalSearchParams<{
+    occasion?: string;
+    style?: string;
+    color?: string;
+  }>();
 
-  const [selectedStyle, setSelectedStyle] = useState("");
-
-  const [selectedColor, setSelectedColor] = useState("");
-
+  const [selectedOccasion, setSelectedOccasion] = useState(
+    params.occasion || "",
+  );
+  const [selectedStyle, setSelectedStyle] = useState(params.style || "");
+  const [selectedColor, setSelectedColor] = useState(params.color || "");
   const [result, setResult] = useState<Outfit | null>(null);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  // ===================================================
-  // CUSTOM FUNCTION UNTUK MENCARI OUTFIT
-  // ===================================================
+  useEffect(() => {
+    setHasSearched(false);
+    setResult(null);
+  }, [selectedOccasion, selectedStyle, selectedColor]);
+
+  const isReadyToMatch = useMemo(() => {
+    return Boolean(selectedOccasion && selectedStyle && selectedColor);
+  }, [selectedOccasion, selectedStyle, selectedColor]);
 
   const findMatch = () => {
     const matchedOutfit = outfits.find(
@@ -133,11 +125,29 @@ export default function Match() {
     );
 
     setResult(matchedOutfit || null);
+    setHasSearched(true);
+
+    router.setParams({
+      occasion: selectedOccasion,
+      style: selectedStyle,
+      color: selectedColor,
+    });
   };
 
-  // ===================================================
-  // CUSTOM FUNCTION UNTUK MEMBUAT OPTION
-  // ===================================================
+  const handleGoBack = () => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/");
+    }
+  };
+
+  const handleGoToExplore = () => {
+    router.push({
+      pathname: "/explore",
+      params: { matchedOutfit: result?.name || "Belum ada outfit" },
+    });
+  };
 
   const renderOption = (
     option: MatchOption,
@@ -164,9 +174,42 @@ export default function Match() {
   return (
     <ScrollView style={styles.container}>
       <View style={styles.content}>
-        {/* =========================================
-            HEADER
-        ========================================= */}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            width: "100%",
+            marginBottom: 12,
+          }}
+        >
+          <Pressable
+            onPress={handleGoBack}
+            style={{
+              paddingVertical: 6,
+              paddingHorizontal: 14,
+              backgroundColor: "#EBF3FA",
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: "#4A90E2", fontWeight: "600", fontSize: 13 }}>
+              ← Back
+            </Text>
+          </Pressable>
+
+          <Pressable
+            onPress={handleGoToExplore}
+            style={{
+              paddingVertical: 6,
+              paddingHorizontal: 14,
+              backgroundColor: "#EBF3FA",
+              borderRadius: 8,
+            }}
+          >
+            <Text style={{ color: "#4A90E2", fontWeight: "600", fontSize: 13 }}>
+              Explore →
+            </Text>
+          </Pressable>
+        </View>
 
         <Text style={styles.logo}>FITMATCH</Text>
 
@@ -176,10 +219,6 @@ export default function Match() {
           Choose your occasion, style, and color to find the perfect outfit.
         </Text>
 
-        {/* =========================================
-            OCCASION
-        ========================================= */}
-
         <Text style={styles.sectionTitle}>Occasion</Text>
 
         <View style={styles.optionContainer}>
@@ -187,10 +226,6 @@ export default function Match() {
             renderOption(option, selectedOccasion, setSelectedOccasion),
           )}
         </View>
-
-        {/* =========================================
-            STYLE
-        ========================================= */}
 
         <Text style={styles.sectionTitle}>Style</Text>
 
@@ -200,10 +235,6 @@ export default function Match() {
           )}
         </View>
 
-        {/* =========================================
-            COLOR
-        ========================================= */}
-
         <Text style={styles.sectionTitle}>Color</Text>
 
         <View style={styles.optionContainer}>
@@ -212,21 +243,25 @@ export default function Match() {
           )}
         </View>
 
-        {/* =========================================
-            BUTTON
-        ========================================= */}
-
         <Pressable onPress={findMatch} style={styles.matchButton}>
           <Text style={styles.matchButtonText}>FIND MY FIT</Text>
         </Pressable>
 
-        {/* =========================================
-            MATCH RESULT
-        ========================================= */}
-
         {result && (
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>Your Match ✨</Text>
+
+            <Image
+              source={{ uri: result.image }}
+              style={{
+                width: 180,
+                height: 220,
+                borderRadius: 14,
+                marginVertical: 12,
+                alignSelf: "center",
+              }}
+              resizeMode="cover"
+            />
 
             <Text style={styles.resultName}>{result.name}</Text>
 
@@ -234,7 +269,6 @@ export default function Match() {
               {result.occasion} • {result.style} • {result.color}
             </Text>
 
-            {/* INLINE STYLE */}
             <Text
               style={{
                 marginTop: 15,
@@ -247,11 +281,7 @@ export default function Match() {
           </View>
         )}
 
-        {/* =========================================
-            NO RESULT
-        ========================================= */}
-
-        {!result && selectedOccasion && selectedStyle && selectedColor && (
+        {hasSearched && !result && isReadyToMatch && (
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>No Match Found</Text>
 
@@ -261,12 +291,10 @@ export default function Match() {
           </View>
         )}
 
-        {/* =========================================
-            HINT
-        ========================================= */}
-
         <Text style={styles.hint}>
-          Choose all preferences to find your fit.
+          {isReadyToMatch
+            ? `Ready to match: ${selectedOccasion} • ${selectedStyle} • ${selectedColor}`
+            : "Choose all preferences to find your fit."}
         </Text>
       </View>
     </ScrollView>
