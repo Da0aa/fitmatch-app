@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -24,9 +25,16 @@ interface WardrobeItem {
 const categories = ["All", "Tops", "Bottoms", "Outer", "Dress", "Shoes"];
 
 export default function WardrobeScreen() {
+  const router = useRouter();
+
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    console.log("Kategori:", selectedCategory);
+    console.log("Pencarian:", searchQuery);
+  }, [selectedCategory, searchQuery]);
 
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
@@ -171,17 +179,20 @@ export default function WardrobeScreen() {
       <StatusBar barStyle="dark-content" backgroundColor="#FFFFFF" />
 
       {/* HEADER */}
-
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>WARDROBE</Text>
+        <Text style={[styles.headerTitle, { color: "#6D9BC3" }]}>WARDROBE</Text>
 
         <TouchableOpacity
           style={styles.editBtn}
-          onPress={() =>
-            Alert.alert("Info", "Mode kelola wardrobe diaktifkan.")
-          }
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
         >
-          <Text style={styles.editText}>Manage</Text>
+          <Text style={styles.editText}>Back</Text>
         </TouchableOpacity>
       </View>
 
@@ -233,15 +244,8 @@ export default function WardrobeScreen() {
           displayed
         </Text>
 
-        <TouchableOpacity
-          onPress={() =>
-            Alert.alert(
-              "Filter",
-              "Pilih kategori menggunakan tombol kategori di atas.",
-            )
-          }
-        >
-          <Text style={styles.filterText}>🏷 Filter ▾</Text>
+        <TouchableOpacity onPress={() => router.push("/match")}>
+          <Text style={styles.filterText}>✨ Go to Match →</Text>
         </TouchableOpacity>
       </View>
 
