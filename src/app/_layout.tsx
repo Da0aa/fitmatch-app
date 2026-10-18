@@ -6,11 +6,8 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-
-        // Tampilan menu bawah
         tabBarActiveTintColor: "#6D9BC3",
         tabBarInactiveTintColor: "#9CA3AF",
-
         tabBarStyle: {
           height: 68,
           paddingBottom: 8,
@@ -19,14 +16,12 @@ export default function TabLayout() {
           borderTopWidth: 1,
           borderTopColor: "#E5E7EB",
         },
-
         tabBarLabelStyle: {
           fontSize: 11,
           fontWeight: "500",
         },
       }}
     >
-      {/* HOME */}
       <Tabs.Screen
         name="index"
         options={{
@@ -36,8 +31,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      {/* WARDROBE */}
       <Tabs.Screen
         name="wardrobe"
         options={{
@@ -47,8 +40,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      {/* FITMATCH */}
       <Tabs.Screen
         name="match"
         options={{
@@ -58,8 +49,6 @@ export default function TabLayout() {
           ),
         }}
       />
-
-      {/* EXPLORE */}
       <Tabs.Screen
         name="explore"
         options={{
