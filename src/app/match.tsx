@@ -1,11 +1,7 @@
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, Pressable, ScrollView, Text, View } from "react-native";
-
 import styles from "../styles/matchStyles";
-
-// =====================================================
-// TYPE / INTERFACE
-// =====================================================
 
 interface MatchOption {
   id: number;
@@ -20,10 +16,6 @@ interface Outfit {
   color: string;
   image: string;
 }
-
-// =====================================================
-// OPTION DATA
-// =====================================================
 
 const occasions: MatchOption[] = [
   {
@@ -70,10 +62,6 @@ const colors: MatchOption[] = [
   },
 ];
 
-// =====================================================
-// OUTFIT DATA
-// =====================================================
-
 const outfits: Outfit[] = [
   {
     id: 1,
@@ -116,11 +104,9 @@ const outfits: Outfit[] = [
   },
 ];
 
-// =====================================================
-// MATCH SCREEN
-// =====================================================
-
 export default function Match() {
+  const router = useRouter();
+
   const [selectedOccasion, setSelectedOccasion] = useState("");
 
   const [selectedStyle, setSelectedStyle] = useState("");
@@ -128,10 +114,6 @@ export default function Match() {
   const [selectedColor, setSelectedColor] = useState("");
 
   const [result, setResult] = useState<Outfit | null>(null);
-
-  // ===================================================
-  // FIND MATCH
-  // ===================================================
 
   const findMatch = () => {
     const matchedOutfit = outfits.find(
@@ -143,10 +125,6 @@ export default function Match() {
 
     setResult(matchedOutfit || null);
   };
-
-  // ===================================================
-  // OPTION COMPONENT
-  // ===================================================
 
   const renderOption = (
     option: MatchOption,
@@ -173,15 +151,20 @@ export default function Match() {
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       <View style={styles.content}>
-        {/* =================================================
-            TOP LABEL
-        ================================================= */}
+        <Pressable
+          onPress={() => {
+            if (router.canGoBack()) {
+              router.back();
+            } else {
+              router.replace("/");
+            }
+          }}
+          style={{ paddingVertical: 12 }}
+        >
+          <Text style={{ color: "#6D9BC3", fontWeight: "600" }}>← Kembali</Text>
+        </Pressable>
 
         <Text style={styles.logo}>FITMATCH</Text>
-
-        {/* =================================================
-            HERO
-        ================================================= */}
 
         <View style={styles.heroCard}>
           <Image
@@ -204,10 +187,6 @@ export default function Match() {
           </View>
         </View>
 
-        {/* =================================================
-            INTRO
-        ================================================= */}
-
         <View style={styles.intro}>
           <Text style={styles.title}>Find Your Fit ✨</Text>
 
@@ -216,10 +195,6 @@ export default function Match() {
             your vibe.
           </Text>
         </View>
-
-        {/* =================================================
-            OCCASION
-        ================================================= */}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionNumber}>01</Text>
@@ -235,10 +210,6 @@ export default function Match() {
           )}
         </View>
 
-        {/* =================================================
-            STYLE
-        ================================================= */}
-
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionNumber}>02</Text>
 
@@ -252,10 +223,6 @@ export default function Match() {
             renderOption(option, selectedStyle, setSelectedStyle),
           )}
         </View>
-
-        {/* =================================================
-            COLOR
-        ================================================= */}
 
         <View style={styles.sectionHeader}>
           <Text style={styles.sectionNumber}>03</Text>
@@ -271,10 +238,6 @@ export default function Match() {
           )}
         </View>
 
-        {/* =================================================
-            BUTTON
-        ================================================= */}
-
         <Pressable
           onPress={findMatch}
           style={({ pressed }) => [
@@ -286,10 +249,6 @@ export default function Match() {
 
           <Text style={styles.matchButtonArrow}>→</Text>
         </Pressable>
-
-        {/* =================================================
-            RESULT
-        ================================================= */}
 
         {result && (
           <View style={styles.resultContainer}>
@@ -323,10 +282,6 @@ export default function Match() {
           </View>
         )}
 
-        {/* =================================================
-            NO RESULT
-        ================================================= */}
-
         {!result && selectedOccasion && selectedStyle && selectedColor && (
           <View style={styles.resultContainer}>
             <Text style={styles.resultTitle}>No Match Found</Text>
@@ -336,10 +291,6 @@ export default function Match() {
             </Text>
           </View>
         )}
-
-        {/* =================================================
-            HINT
-        ================================================= */}
 
         <Text style={styles.hint}>
           Choose all preferences to discover your fit ✦
