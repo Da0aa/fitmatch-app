@@ -1,10 +1,6 @@
 import { StyleSheet } from "react-native";
 
 const styles = StyleSheet.create({
-  // =====================================================
-  // MAIN
-  // =====================================================
-
   container: {
     flex: 1,
     backgroundColor: "#F8FBFF",
@@ -19,21 +15,13 @@ const styles = StyleSheet.create({
     paddingBottom: 55,
   },
 
-  // =====================================================
-  // LOGO
-  // =====================================================
-
   logo: {
     fontSize: 18,
     fontWeight: "800",
-    color: "#79A7D3",
+    color: "#050608",
     letterSpacing: 2,
     marginBottom: 18,
   },
-
-  // =====================================================
-  // HERO
-  // =====================================================
 
   heroCard: {
     width: "100%",
@@ -88,10 +76,6 @@ const styles = StyleSheet.create({
     fontWeight: "500",
   },
 
-  // =====================================================
-  // INTRO
-  // =====================================================
-
   intro: {
     marginBottom: 30,
   },
@@ -109,10 +93,6 @@ const styles = StyleSheet.create({
     color: "#718096",
     maxWidth: 650,
   },
-
-  // =====================================================
-  // SECTION
-  // =====================================================
 
   sectionHeader: {
     flexDirection: "row",
@@ -140,10 +120,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     marginBottom: 13,
   },
-
-  // =====================================================
-  // OPTIONS
-  // =====================================================
 
   optionContainer: {
     flexDirection: "row",
@@ -200,10 +176,6 @@ const styles = StyleSheet.create({
     fontWeight: "800",
   },
 
-  // =====================================================
-  // FIND BUTTON
-  // =====================================================
-
   matchButton: {
     backgroundColor: "#263746",
     borderRadius: 20,
@@ -248,10 +220,6 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     marginLeft: 12,
   },
-
-  // =====================================================
-  // RESULT CARD
-  // =====================================================
 
   resultContainer: {
     backgroundColor: "#FFFFFF",
@@ -342,10 +310,6 @@ const styles = StyleSheet.create({
     color: "#A1ACB6",
     marginTop: 5,
   },
-
-  // =====================================================
-  // HINT
-  // =====================================================
 
   hint: {
     textAlign: "center",

@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import {
   FlatList,
   Image,
+  Pressable,
   SafeAreaView,
   ScrollView,
   Text,
@@ -20,6 +21,27 @@ interface Outfit {
   category: string;
   image: string;
 }
+
+const FOR_YOU: Outfit[] = [
+  {
+    id: "1",
+    name: "Soft Blue Outfit",
+    category: "Casual",
+    image: "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=600",
+  },
+  {
+    id: "2",
+    name: "Striped Casual",
+    category: "Casual",
+    image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600",
+  },
+  {
+    id: "3",
+    name: "Clean White Look",
+    category: "Classic",
+    image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600",
+  },
+];
 
 const TRENDING: Outfit[] = [
   {
@@ -39,27 +61,6 @@ const TRENDING: Outfit[] = [
     name: "Neutral Layering",
     category: "Minimalist",
     image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600",
-  },
-];
-
-const FOR_YOU: Outfit[] = [
-  {
-    id: "1",
-    name: "Soft Blue Outfit",
-    category: "Casual",
-    image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600",
-  },
-  {
-    id: "2",
-    name: "Striped Casual",
-    category: "Casual",
-    image: "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=600",
-  },
-  {
-    id: "3",
-    name: "Clean White Look",
-    category: "Classic",
-    image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600",
   },
 ];
 
@@ -221,16 +222,16 @@ export default function HomeScreen() {
 
         {/* FOR YOU */}
         <SectionHeader
-          title="Trending"
-          icon="♧"
-          onPress={() => router.push("/explore")}
+          title="For You"
+          icon="♡"
+          onPress={() => router.push("/match")}
         />
 
-        {filteredTrending.length === 0 ? (
+        {filteredForYou.length === 0 ? (
           <EmptySearch />
         ) : (
           <FlatList
-            data={filteredTrending}
+            data={filteredForYou}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
@@ -260,16 +261,16 @@ export default function HomeScreen() {
 
         {/* TRENDING */}
         <SectionHeader
-          title="For You"
-          icon="♡"
-          onPress={() => router.push("/match")}
+          title="Trending"
+          icon="♧"
+          onPress={() => router.push("/explore")}
         />
 
-        {filteredForYou.length === 0 ? (
+        {filteredTrending.length === 0 ? (
           <EmptySearch />
         ) : (
           <FlatList
-            data={filteredForYou}
+            data={filteredTrending}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={(item) => item.id}
@@ -314,6 +315,20 @@ export default function HomeScreen() {
             <Text style={styles.quickButtonText}>Match ✨</Text>
           </TouchableOpacity>
         </View>
+
+        <Pressable
+          onPress={() => router.push("/guide")}
+          style={{
+            backgroundColor: "#6D9BC3",
+            padding: 16,
+            borderRadius: 12,
+            marginTop: 12,
+          }}
+        >
+          <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>
+            FITMATCH Guide →
+          </Text>
+        </Pressable>
 
         <View style={styles.bottomSpace} />
       </ScrollView>

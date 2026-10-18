@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Modal,
@@ -27,6 +27,11 @@ export default function WardrobeScreen() {
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    console.log("Kategori:", selectedCategory);
+    console.log("Pencarian:", searchQuery);
+  }, [selectedCategory, searchQuery]);
 
   const [isAddModalVisible, setIsAddModalVisible] = useState(false);
 
