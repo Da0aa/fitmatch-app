@@ -1,5 +1,5 @@
 import { useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   FlatList,
   Image,
@@ -13,56 +13,10 @@ import {
   View,
 } from "react-native";
 
+import { fetchFashionProducts } from "../services/fashionService";
 import styles from "../styles/homeStyles";
-
-interface Outfit {
-  id: string;
-  name: string;
-  category: string;
-  image: string;
-}
-
-const FOR_YOU: Outfit[] = [
-  {
-    id: "1",
-    name: "Soft Blue Outfit",
-    category: "Casual",
-    image: "https://images.unsplash.com/photo-1591369822096-ffd140ec948f?w=600",
-  },
-  {
-    id: "2",
-    name: "Striped Casual",
-    category: "Casual",
-    image: "https://images.unsplash.com/photo-1551488831-00ddcb6c6bd3?w=600",
-  },
-  {
-    id: "3",
-    name: "Clean White Look",
-    category: "Classic",
-    image: "https://images.unsplash.com/photo-1485968579580-b6d095142e6e?w=600",
-  },
-];
-
-const TRENDING: Outfit[] = [
-  {
-    id: "4",
-    name: "Earth Tone Look",
-    category: "Streetwear",
-    image: "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600",
-  },
-  {
-    id: "5",
-    name: "Everyday Couple",
-    category: "Casual",
-    image: "https://images.unsplash.com/photo-1529139574466-a303027c1d8b?w=600",
-  },
-  {
-    id: "6",
-    name: "Neutral Layering",
-    category: "Minimalist",
-    image: "https://images.unsplash.com/photo-1496747611176-843222e1e57c?w=600",
-  },
-];
+import { Product } from "../types/fashion";
+import { simulateDelay } from "../utils/promiseHelper";
 
 const BANNERS = [
   {
@@ -92,51 +46,91 @@ export default function HomeScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeBanner, setActiveBanner] = useState(0);
 
+  // State untuk menampung data API
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
+
   const isDesktop = width >= 768;
-
   const contentWidth = isDesktop ? Math.min(width - 80, 1100) : width - 40;
-
   const cardWidth = isDesktop
     ? Math.min((contentWidth - 48) / 3, 300)
     : (contentWidth - 20) / 3;
 
   const currentBanner = BANNERS[activeBanner];
 
-  const filteredForYou = useMemo(() => {
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        await simulateDelay(1500);
+
+        fetchFashionProducts()
+          .then((result) => {
+            setProducts(result);
+          })
+          .catch((error) => {
+            setErrorMsg(error.message);
+          })
+          .finally(() => {
+            setIsLoading(false);
+          });
+      } catch (err) {
+        setErrorMsg("Terjadi kesalahan sistem");
+        setIsLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  const filteredProducts = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
+    if (!query) return products;
 
-    if (!query) {
-      return FOR_YOU;
-    }
-
-    return FOR_YOU.filter(
+    return products.filter(
       (item) =>
-        item.name.toLowerCase().includes(query) ||
+        item.title.toLowerCase().includes(query) ||
         item.category.toLowerCase().includes(query),
     );
-  }, [searchQuery]);
+  }, [searchQuery, products]);
 
-  const filteredTrending = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
-
-    if (!query) {
-      return TRENDING;
-    }
-
-    return TRENDING.filter(
-      (item) =>
-        item.name.toLowerCase().includes(query) ||
-        item.category.toLowerCase().includes(query),
-    );
-  }, [searchQuery]);
-
-  const openOutfit = (item: Outfit) => {
+  const openOutfit = (item: Product) => {
     router.push("/match");
   };
 
   const nextBanner = () => {
     setActiveBanner((current) => (current + 1) % BANNERS.length);
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <Text style={{ fontSize: 18, color: "#6D9BC3", fontWeight: "bold" }}>
+          Loading Outfits...
+        </Text>
+      </SafeAreaView>
+    );
+  }
+
+  if (errorMsg) {
+    return (
+      <SafeAreaView
+        style={[
+          styles.safeArea,
+          { justifyContent: "center", alignItems: "center" },
+        ]}
+      >
+        <Text style={{ fontSize: 18, color: "red", textAlign: "center" }}>
+          {errorMsg}
+        </Text>
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -191,13 +185,10 @@ export default function HomeScreen() {
         >
           <View style={styles.bannerText}>
             <Text style={styles.bannerTitle}>{currentBanner.title}</Text>
-
             <Text style={styles.bannerSubtitle}>{currentBanner.subtitle}</Text>
-
             <Text style={styles.bannerDescription}>
               {currentBanner.description}
             </Text>
-
             <View style={styles.bannerLine} />
           </View>
 
@@ -220,21 +211,21 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        {/* FOR YOU */}
+        {/* FOR YOU (Data diambil dari API) */}
         <SectionHeader
           title="For You"
           icon="♡"
           onPress={() => router.push("/match")}
         />
 
-        {filteredForYou.length === 0 ? (
+        {filteredProducts.length === 0 ? (
           <EmptySearch />
         ) : (
           <FlatList
-            data={filteredForYou}
+            data={filteredProducts}
             horizontal
             showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id}
+            keyExtractor={(item) => item.id.toString()} // ID dari API bertipe number, ubah ke string
             contentContainerStyle={styles.horizontalList}
             renderItem={({ item }) => (
               <TouchableOpacity
@@ -242,55 +233,17 @@ export default function HomeScreen() {
                 onPress={() => openOutfit(item)}
                 style={[styles.outfitCard, { width: cardWidth }]}
               >
+                {/* API menggunakan 'thumbnail' bukan 'image' */}
                 <Image
-                  source={{ uri: item.image }}
+                  source={{ uri: item.thumbnail }}
                   style={styles.outfitImage}
                 />
 
                 <View style={styles.outfitInfo}>
+                  {/* API menggunakan 'title' bukan 'name' */}
                   <Text style={styles.outfitName} numberOfLines={1}>
-                    {item.name}
+                    {item.title}
                   </Text>
-
-                  <Text style={styles.outfitCategory}>{item.category}</Text>
-                </View>
-              </TouchableOpacity>
-            )}
-          />
-        )}
-
-        {/* TRENDING */}
-        <SectionHeader
-          title="Trending"
-          icon="♧"
-          onPress={() => router.push("/explore")}
-        />
-
-        {filteredTrending.length === 0 ? (
-          <EmptySearch />
-        ) : (
-          <FlatList
-            data={filteredTrending}
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            keyExtractor={(item) => item.id}
-            contentContainerStyle={styles.horizontalList}
-            renderItem={({ item }) => (
-              <TouchableOpacity
-                activeOpacity={0.85}
-                onPress={() => openOutfit(item)}
-                style={[styles.outfitCard, { width: cardWidth }]}
-              >
-                <Image
-                  source={{ uri: item.image }}
-                  style={styles.outfitImage}
-                />
-
-                <View style={styles.outfitInfo}>
-                  <Text style={styles.outfitName} numberOfLines={1}>
-                    {item.name}
-                  </Text>
-
                   <Text style={styles.outfitCategory}>{item.category}</Text>
                 </View>
               </TouchableOpacity>
@@ -302,7 +255,6 @@ export default function HomeScreen() {
         <View style={styles.quickAction}>
           <View>
             <Text style={styles.quickTitle}>Can't decide what to wear?</Text>
-
             <Text style={styles.quickSubtitle}>
               Let FitMatch find it for you.
             </Text>
@@ -347,7 +299,6 @@ function SectionHeader({ title, icon, onPress }: SectionHeaderProps) {
     <View style={styles.sectionHeader}>
       <View style={styles.sectionTitleWrapper}>
         <Text style={styles.sectionIcon}>{icon}</Text>
-
         <Text style={styles.sectionTitle}>{title}</Text>
       </View>
 
@@ -362,9 +313,7 @@ function EmptySearch() {
   return (
     <View style={styles.emptySearch}>
       <Text style={styles.emptyIcon}>⌕</Text>
-
       <Text style={styles.emptyTitle}>Outfit tidak ditemukan</Text>
-
       <Text style={styles.emptyText}>Coba kata kunci pencarian lainnya.</Text>
     </View>
   );
