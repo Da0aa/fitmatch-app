@@ -1,7 +1,31 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter, useSegments } from "expo-router";
+import { useEffect } from "react";
 
-export default function TabLayout() {
+import { AuthProvider, useAuth } from "../context/AuthContext";
+import { WardrobeProvider } from "../context/WardrobeContext";
+
+function TabNavigator() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+  const segments = useSegments();
+
+  useEffect(() => {
+    if (isLoading) return;
+
+    const currentRoute = segments[0];
+
+    if (!user && currentRoute !== "auth") {
+      router.replace("/auth");
+    } else if (user && currentRoute === "auth") {
+      router.replace("/");
+    }
+  }, [user, isLoading, segments, router]);
+
+  if (isLoading) {
+    return null;
+  }
+
   return (
     <Tabs
       screenOptions={{
@@ -27,37 +51,64 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home-outline" size={size} color={color} />
+            <Ionicons name="home-outline" size={size} color={String(color)} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="wardrobe"
         options={{
           title: "Wardrobe",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="shirt-outline" size={size} color={color} />
+            <Ionicons name="shirt-outline" size={size} color={String(color)} />
           ),
         }}
       />
+
       <Tabs.Screen
         name="match"
         options={{
           title: "Match",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="sparkles-outline" size={size} color={color} />
+            <Ionicons
+              name="sparkles-outline"
+              size={size}
+              color={String(color)}
+            />
           ),
         }}
       />
+
       <Tabs.Screen
         name="explore"
         options={{
           title: "Explore",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="search-outline" size={size} color={color} />
+            <Ionicons name="search-outline" size={size} color={String(color)} />
           ),
         }}
       />
+
+      <Tabs.Screen
+        name="auth"
+        options={{
+          tabBarItemStyle: {
+            display: "none",
+          },
+          headerShown: false,
+        }}
+      />
     </Tabs>
+  );
+}
+
+export default function TabLayout() {
+  return (
+    <AuthProvider>
+      <WardrobeProvider>
+        <TabNavigator />
+      </WardrobeProvider>
+    </AuthProvider>
   );
 }
